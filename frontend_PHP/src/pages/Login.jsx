@@ -37,7 +37,7 @@ const Login = () => {
           password,
         }  ,{
           withCredentials: true,});
-        if (response.data.success) {
+        if (response.data.status == 200) {
           setToken(response.data.token);
           localStorage.setItem("token", response.data.token);
         } else {

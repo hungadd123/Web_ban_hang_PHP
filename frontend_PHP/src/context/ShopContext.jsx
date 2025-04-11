@@ -33,10 +33,14 @@ const ShopContextProvider = (props) => {
         }
         // setLoading(true); // Không cần thiết nếu initialLoad quản lý
         try {
-            const response = await axios.get(`${backendUrl}/api/user/info`, {
-                headers: { token: token },
-            });
-            if (response.data.success) {
+            const response = await axios.get(`${backendUrl}/api/user/getProfile`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                withCredentials: true,
+            }
+            );
+            if (response.data.status === 200) {
                 setUser(response.data.user);
             } else {
                 console.error("Fetch user failed:", response.data.message);
@@ -126,10 +130,13 @@ const ShopContextProvider = (props) => {
             return;
         }
         try {
-            const response = await axios.get(`${backendUrl}/api/store/info`, {
-                headers: { token },
+            const response = await axios.get(`${backendUrl}/api/store/findStoreById`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                withCredentials: true,
             });
-            if (response.data.success) {
+            if (response.data.status === 200) {
                 updateStoreInfoContext(response.data.store);
             } else {
                 // Không nhất thiết là lỗi nếu user không có store
@@ -153,9 +160,14 @@ const ShopContextProvider = (props) => {
         }
         try {
             const response = await axios.post(
-                backendUrl + "/api/cart/get",
-                {},
-                { headers: { token } }
+                backendUrl + "/api/cart/",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                }
+                ,
+                {withCredentials: true}
             );
             if (response.data.success) {
                 setCartItems(response.data.cartData || {}); // Đảm bảo là object
@@ -199,6 +211,8 @@ const ShopContextProvider = (props) => {
         }
      };
 
+
+     
     // --- HÀM FOLLOW/UNFOLLOW (ĐÃ CÓ VÀ ĐÚNG) ---
     const followStore = async (storeId) => {
        if (!token) {
@@ -211,9 +225,14 @@ const ShopContextProvider = (props) => {
        }
        try {
            const response = await axios.post(
-               `${backendUrl}/api/store/follow/${storeId}`,
+               `${backendUrl}/api/store/followers/${storeId}`,
                { userId: user._id },
-               { headers: { token } }
+               {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+                },
+               {withCredentials: true}
            );
            if (response.data.success) {
                await fetchUserData(); // Cập nhật lại thông tin user (bao gồm cả list following)
@@ -243,7 +262,11 @@ const ShopContextProvider = (props) => {
            const response = await axios.post(
                `${backendUrl}/api/store/unfollow/${storeId}`,
                { userId: user._id },
-               { headers: { token } }
+               {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            }
            );
            if (response.data.success) {
                await fetchUserData(); // Cập nhật lại thông tin user
@@ -264,9 +287,14 @@ const ShopContextProvider = (props) => {
        if (!token || !user?._id) return false;
 
        try {
-           const response = await axios.post(`${backendUrl}/api/store/isfollowing/${storeId}`,
+           const response = await axios.post(`${backendUrl}/api/store/followers/${storeId}`,
                { userId: user._id }, // Gửi userId trong body
-               { headers: { token } }
+               {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+                },
+               {withCredentials: true}
            );
            return response.data.isFollowing;
        } catch (error) {
@@ -332,7 +360,12 @@ const ShopContextProvider = (props) => {
                await axios.post(
                    backendUrl + "/api/cart/add",
                    { itemId, color },
-                   { headers: { token } }
+                   {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                    },
+                   {withCredentials: true}
                );
            } catch (error) {
                console.log("Error adding to backend cart:", error);
@@ -365,7 +398,12 @@ const ShopContextProvider = (props) => {
                await axios.post(
                    backendUrl + "/api/cart/update",
                    { itemId, color, quantity },
-                   { headers: { token } }
+                   {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                    },
+                   {withCredentials: true},
                );
            } catch (error) {
                console.log("Error updating backend cart:", error);
