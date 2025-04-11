@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["./src/*"] 
+      }
+    },
+    "include": ["src"] // Đảm bảo chỉ áp dụng cho thư mục src
+  }

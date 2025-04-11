@@ -1,0 +1,1662 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+Blog.jsx
+Cart.jsx
+Collection.jsx
+Home.jsx
+Login.jsx
+Orders.jsx
+PlaceOrder.jsx
+Product.jsx
+RequestStore.jsx
+StoreManagement.jsx
+Verify.jsx
+
+================================================================
+Files
+================================================================
+
+================
+File: Blog.jsx
+================
+import React from "react";
+import { blogs } from "../assets/data";
+import Footer from "../components/Footer";
+
+const Blog = () => {
+  return (
+    <div>
+      <div className="bg-primary mb-16 pb-16">
+        <div className="max-padd-container py-10">
+          {/* CONTAINER */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 gap-y-12 pt-6">
+            {blogs.map((blog) => (
+              <div key={blog.title} className="relative">
+                <img src={blog.image} alt="blogImg" className="rounded-xl" />
+                {/* INFO */}
+                <p className="medium-14 mt-6">{blog.category}</p>
+                <h5 className="h5 pr-4 mb-1">{blog.title}</h5>
+                <p>
+                  Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                  Aliquid, iusto natus!
+                </p>
+                <button className="underline mt-2 bold-14">
+                  continue reading
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <Footer />
+    </div>
+  );
+};
+
+export default Blog;
+
+================
+File: Cart.jsx
+================
+import React, { useContext, useEffect, useState } from "react";
+import { ShopContext } from "../context/ShopContext";
+import Title from "../components/Title";
+import { FaRegWindowClose } from "react-icons/fa";
+import { FaMinus, FaPlus } from "react-icons/fa6";
+import CartTotal from "../components/CartTotal";
+import Footer from "../components/Footer";
+
+const Cart = () => {
+  const { navigate, products, currency, cartItems, getCartCount, updateQuantity } =
+    useContext(ShopContext);
+
+  const [cartData, setCartData] = useState([]);
+  const [quantities, setQuantities] = useState({});
+
+  useEffect(() => {
+    if (products.length > 0) {
+      const tempData = [];
+      const initialQuantities = {};
+      for (const items in cartItems) {
+        for (const item in cartItems[items]) {
+          if (cartItems[items][item] > 0) {
+            tempData.push({
+              _id: items,
+              color: item,
+              quantity: cartItems[items][item],
+            });
+            initialQuantities[`${items}-${item}`] = cartItems[items][item];
+          }
+        }
+      }
+      setCartData(tempData);
+      setQuantities(initialQuantities);
+    }
+  }, [cartItems, products]);
+
+  const increment = (id, color) => {
+    const key = `${id}-${color}`;
+    const newValue = quantities[key] + 1;
+    setQuantities((prev) => ({ ...prev, [key]: newValue }));
+    updateQuantity(id, color, newValue);
+  };
+
+  const decrement = (id, color) => {
+    const key = `${id}-${color}`;
+    if (quantities[key] > 1) {
+      const newValue = quantities[key] - 1;
+      setQuantities((prev) => ({ ...prev, [key]: newValue }));
+      updateQuantity(id, color, newValue);
+    }
+  };
+
+  return (
+    <section>
+      <div className="bg-primary mb-16">
+        <div className="max-padd-container py-10">
+          {/* TITLE */}
+          <div className="flexStart gap-x-4">
+            <Title title1={"Cart"} title2={"List"} title1Styles={"h3"} />
+            <h5 className="medium-15 text-gray-30 relative bottom-1.5">
+              ({getCartCount()} Items)
+            </h5>
+          </div>
+          {/* CONTAINER */}
+          <div className="mt-6">
+            {cartData.map((item, i) => {
+              const productData = products.find(
+                (product) => product._id === item._id
+              );
+              const key = `${item._id}-${item.color}`;
+              return (
+                <div key={i} className="bg-white p-2 mb-3 rounded-lg">
+                  <div className="flex items-center gap-x-3">
+                    <div className="flex items-start gap-6">
+                      <img
+                        src={productData.image[0]}
+                        alt="productImg"
+                        className="w-20 sm:w-18 rounded"
+                      />
+                    </div>
+                    <div className="flex flex-col w-full">
+                      <div className="flexBetween">
+                        <h5 className="h5 !my-0 line-clamp-1">
+                          {productData.name}
+                        </h5>
+                        <FaRegWindowClose
+                          onClick={() =>
+                            updateQuantity(item._id, item.color, 0)
+                          }
+                          className="cursor-pointer text-secondary"
+                        />
+                      </div>
+                      <p className="bold-14 my-0.5">{item.color}</p>
+                      <div className="flexBetween">
+                        <div className="flex items-center ring-1 ring-slate-900/5 rounded-full overflow-hidden bg-primary">
+                          <button
+                            onClick={() => decrement(item._id, item.color)}
+                            className="p-1.5 bg-white text-secondary rounded-full shadow-md"
+                          >
+                            <FaMinus className="text-xs" />
+                          </button>
+                          <p className="px-2">{quantities[key]}</p>
+                          <button
+                            onClick={() => increment(item._id, item.color)}
+                            className="p-1.5 bg-white text-secondary rounded-full shadow-md"
+                          >
+                            <FaPlus className="text-xs" />
+                          </button>
+                        </div>
+                        <h4 className="h4">
+                          {currency}
+                          {productData.price}
+                        </h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex my-20">
+            <div className="w-full sm:w-[450px]">
+              <CartTotal />
+              <button onClick={()=>navigate('/place-order')} className="btn-secondary mt-7">
+                Proceed to Checkout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Footer />
+    </section>
+  );
+};
+
+export default Cart;
+
+================
+File: Collection.jsx
+================
+import React, { useContext, useEffect, useState } from "react";
+import Search from "../components/Search";
+import { ShopContext } from "../context/ShopContext";
+import Item from "../components/Item";
+
+const Collection = () => {
+  const { products, search } = useContext(ShopContext);
+  const [category, setCategory] = useState([]);
+  const [sortType, setSortType] = useState("relevant");
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const toggleFilter = (value, setState) => {
+    setState((prev) =>
+      prev.includes(value)
+        ? prev.filter((item) => item !== value)
+        : [...prev, value]
+    );
+  };
+
+  const applyFilter = () => {
+    let filtered = [...products];
+
+    if (search) {
+      filtered = filtered.filter((product) =>
+        product.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    if (category.length) {
+      filtered = filtered.filter((product) =>
+        category.includes(product.category)
+      );
+    }
+
+    return filtered;
+  };
+
+  const applySorting = (productList) => {
+    switch (sortType) {
+      case "low":
+        return productList.sort((a, b) => a.price - b.price);
+      case "high":
+        return productList.sort((a, b) => b.price - a.price);
+      default:
+        return productList;
+    }
+  };
+
+  useEffect(() => {
+    let filtered = applyFilter();
+    let sorted = applySorting(filtered);
+    setFilteredProducts(sorted);
+    setCurrentPage(1);
+  }, [category, sortType, products, search]);
+
+  const getPaginatedProducts = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredProducts.slice(startIndex, endIndex);
+  };
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+  return (
+    <div className="max-padd-container !px-0">
+      <div className="flex flex-col sm:flex-row gap-8 mb-16">
+        {/* FILTERS */}
+        <div className="min-w-72 bg-primary p-4 pt-8 pl-6 lg:pl-12">
+          <Search />
+          <div className="pl-5 py-3 mt-4 bg-white rounded-xl">
+            <h5 className="h5 mb-4">Categories</h5>
+            <div className="flex flex-col gap-2 text-sm font-light">
+              {[
+                "Headphones",
+                "Cameras",
+                "Mobiles",
+                "Speakers",
+                "Mouse",
+                "Watches",
+              ].map((cat) => (
+                <label key={cat} className="flex gap-2 medium-14 text-gray-30">
+                  <input
+                    onChange={(e) => toggleFilter(e.target.value, setCategory)}
+                    type="checkbox"
+                    value={cat}
+                    className="w-3"
+                  />
+                  {cat}
+                </label>
+              ))}
+            </div>
+          </div>
+          <div className="px-4 py-3 mt-6 bg-white rounded-xl">
+            <h5 className="h5 mb-4">Sort By</h5>
+            <select
+              onChange={(e) => setSortType(e.target.value)}
+              className="border border-slate-900/5 outline-none text-gray-30 medium-14 h-8 w-full rounded px-2"
+            >
+              <option value="relevant">Relevant</option>
+              <option value="low">Low</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+        </div>
+        {/* RIGHT SIDE */}
+        <div className="pr-5 rounded-l-xl">
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 gap-y-6 ">
+            {getPaginatedProducts().length > 0 ? (
+              getPaginatedProducts().map((product) => (
+                <Item product={product} />
+              ))
+            ) : (
+              <p>No products found for selected filters</p>
+            )}
+          </div>
+          {/* PAGINATION */}
+          <div className="flexCenter flex-wrap gap-4 mt-14 mb-10">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              className={`${
+                currentPage === 1 && "opacity-50 cursor-not-allowed"
+              } btn-secondary !py-1 !px-3`}
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`${
+                  currentPage === index + 1 && "!bg-tertiary text-white"
+                } btn-light !py-1 !px-3`}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              className={`${
+                currentPage === totalPages && "opacity-50 cursor-not-allowed"
+              } btn-secondary !py-1 !px-3`}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Collection;
+
+================
+File: Home.jsx
+================
+import React from "react";
+import Hero from "../components/Hero";
+import Features from "../components/Features";
+import NewArrivals from "../components/NewArrivals";
+import PopularProducts from "../components/PopularProducts";
+import Banner from "../components/Banner";
+import About from "../components/About";
+import NewsLetter from "../components/NewsLetter";
+import Footer from "../components/Footer";
+import Blog from "../components/Blog";
+
+const Home = () => {
+  return (
+    <>
+      <Hero />
+      <Features />
+      <NewArrivals />
+      <PopularProducts />
+      <Banner />
+      <About />
+      <Blog />
+      <NewsLetter />
+      <Footer />
+    </>
+  );
+};
+
+export default Home;
+
+================
+File: Login.jsx
+================
+import React, { useContext, useEffect, useState } from "react";
+import login from "../assets/login.png";
+import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const Login = () => {
+  const [currState, setCurrState] = useState("Login");
+  const { token, setToken, navigate, backendUrl } = useContext(ShopContext);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
+    try {
+      if (currState === "Sign Up") {
+        const response = await axios.post(backendUrl + "/api/user/register", {
+          name,
+          email,
+          password,
+        });
+        if (response.data.success) {
+          setToken(response.data.token);
+          localStorage.setItem("token", response.data.token);
+        } else {
+          toast.error(response.data.message);
+        }
+      } else {
+        const response = await axios.post(backendUrl + "/api/user/login", {
+          email,
+          password,
+        });
+        if (response.data.success) {
+          setToken(response.data.token);
+          localStorage.setItem("token", response.data.token);
+        } else {
+          toast.error(response.data.message);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [token]);
+
+  return (
+    <div className="absolute top-0 left-0 h-full w-full z-50 bg-white">
+      {/* CONTAINER */}
+      <div className="flex h-full w-full">
+        {/* IMAGE SIDE */}
+        <div className="w-1/2 hidden sm:block">
+          <img
+            src={login}
+            alt="loginImg"
+            className="object-cover h-full w-full"
+          />
+        </div>
+        {/* FORM SIDE */}
+        <div className="flexCenter w-full sm:w-1/2 text-[90%]">
+          <form
+            onSubmit={onSubmitHandler}
+            className="flex flex-col items-center w-[90%] sm:max-w-md m-auto gap-y-5"
+          >
+            <div className="w-full mb-4">
+              <h3 className="bold-36">{currState}</h3>
+            </div>
+            {currState === "Sign Up" && (
+              <div className="w-full">
+                <label htmlFor="name" className="medium-15">
+                  Name
+                </label>
+                <input
+                  onChange={(e) => setName(e.target.value)}
+                  value={name}
+                  type="text"
+                  placeholder="Name"
+                  className="w-full px-3 py-1.5 ring-1 ring-slate-900/5 rounded bg-primary mt-1"
+                />
+              </div>
+            )}
+            <div className="w-full">
+              <label htmlFor="email" className="medium-15">
+                Email
+              </label>
+              <input
+                onChange={(e) => setEmail(e.target.value)}
+                value={email}
+                type="email"
+                placeholder="Email"
+                className="w-full px-3 py-1.5 ring-1 ring-slate-900/5 rounded bg-primary mt-1"
+              />
+            </div>
+            <div className="w-full">
+              <label htmlFor="password" className="medium-15">
+                Password
+              </label>
+              <input
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+                type="password"
+                placeholder="Password"
+                className="w-full px-3 py-1.5 ring-1 ring-slate-900/5 rounded bg-primary mt-1"
+              />
+            </div>
+            <button
+              type="submit"
+              className="btn-dark w-full mt-5 !py-[8px] !rounded"
+            >
+              {currState === "Sign Up" ? "Sign Up" : "Login"}
+            </button>
+            <div className="w-full flex flex-col gap-y-3">
+              {currState === "Login" ? (
+                <>
+                  <div className="underline medium-15">
+                    Forgot your password?
+                  </div>
+                  <div className="underline medium-15">
+                    Don't have an account?
+                    <span
+                      onClick={() => setCurrState("Sign Up")}
+                      className="cursor-pointer pl-1"
+                    >
+                      Create account
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="underline medium-15 cursor-pointer">
+                  Already have an account?
+                  <span
+                    onClick={() => setCurrState("Login")}
+                    className="cursor-pointer pl-1"
+                  >
+                    Login
+                  </span>
+                </div>
+              )}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
+
+================
+File: Orders.jsx
+================
+import React, { useContext, useEffect, useState } from "react";
+import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
+import Title from "../components/Title";
+import Footer from "../components/Footer";
+
+const Orders = () => {
+  const { backendUrl, token, currency } = useContext(ShopContext);
+  const [orderData, setOrderData] = useState([]);
+
+  const loadOrderData = async () => {
+    try {
+      if (!token) {
+        return null;
+      }
+      const response = await axios.post(
+        backendUrl + "/api/order/userorders",
+        {},
+        { headers: { token } }
+      );
+      if (response.data.success) {
+        let allOrdersItem = [];
+        response.data.orders.map((order) => {
+          order.items.map((item) => {
+            item["status"] = order.status;
+            item["payment"] = order.payment;
+            item["paymentMethod"] = order.paymentMethod;
+            item["date"] = order.date;
+            allOrdersItem.push(item);
+          });
+        });
+        setOrderData(allOrdersItem.reverse());
+      }
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    loadOrderData();
+  }, [token]);
+
+  return (
+    <div>
+      <div className="bg-primary mb-16">
+        {/* CONTAINER */}
+        <div className="max-padd-container py-10">
+          <Title title1={"Order"} title2={"List"} title1Styles={"h3"} titleStyles={'pb-4'}/>
+          {orderData.map((item, i) => (
+            <div key={i} className="bg-white p-2 mt-3 rounded-lg">
+              <div className="text-gray-700 flex flex-col gap-4">
+                <div className="flex gap-x-3 w-full">
+                  {/* IMAGE */}
+                  <div className="flex gap-6">
+                    <img
+                      src={item.image[0]}
+                      alt="orderImg"
+                      className="sm:w-[99px] rounded-lg aspect-square object-cover"
+                    />
+                  </div>
+                  {/* ORDER INFO */}
+                  <div className="block w-full">
+                    <h5 className="h5 capitalize line-clamp-1">{item.name}</h5>
+                    <div className="flexBetween flex-wrap">
+                      <div>
+                        <div className="flex items-center gap-x-2 sm:gap-x-3">
+                          <div className="flexCenter gap-x-2">
+                            <h5 className="medium-14">Price:</h5>
+                            <p>
+                              {currency}
+                              {item.price}
+                            </p>
+                          </div>
+                          <div className="flexCenter gap-x-2">
+                            <h5 className="medium-14">Quantity:</h5>
+                            <p>{item.quantity}</p>
+                          </div>
+                          <div className="flexCenter gap-x-2">
+                            <h5 className="medium-14">Color:</h5>
+                            <p>{item.color}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-x-2">
+                          <h5 className="medium-14">Date:</h5>
+                          <p>{new Date(item.date).toDateString()}</p>
+                        </div>
+                        <div className="flex items-center gap-x-2">
+                          <h5 className="medium-14">Payment:</h5>
+                          <p>{item.paymentMethod}</p>
+                        </div>
+                      </div>
+                      {/* STATUS & BUTTON */}
+                      <div className="flex gap-3">
+                        <div className="flex items-center gap-2">
+                          <p className="min-w-2 h-2 rounded-full bg-green-500"></p>
+                          <p>{item.status}</p>
+                        </div>
+                        <button onClick={loadOrderData} className="btn-secondary !p-1.5 !py-1 !text-xs">
+                          Track Order
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default Orders;
+
+================
+File: PlaceOrder.jsx
+================
+import React, { useContext, useState } from "react";
+import Title from "../components/Title";
+import CartTotal from "../components/CartTotal";
+import Footer from "../components/Footer";
+import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const PlaceOrder = () => {
+  const [method, setMethod] = useState("cod");
+  const {
+    navigate,
+    products,
+    currency,
+    delivery_charges,
+    cartItems,
+    setCartItems,
+    addToCart,
+    getCartAmount,
+    token,
+    backendUrl,
+  } = useContext(ShopContext);
+
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    street: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "",
+    phone: "",
+  });
+
+  const onChangeHandler = (event) => {
+    const name = event.target.name;
+    const value = event.target.value;
+
+    setFormData((data) => ({ ...data, [name]: value }));
+  };
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      let orderItems = [];
+
+      for (const items in cartItems) {
+        for (const item in cartItems[items]) {
+          if (cartItems[items][item] > 0) {
+            const itemInfo = structuredClone(
+              products.find((product) => product._id === items)
+            );
+            if (itemInfo) {
+              itemInfo.color = item;
+              itemInfo.quantity = cartItems[items][item];
+              orderItems.push(itemInfo);
+            }
+          }
+        }
+      }
+
+      let orderData = {
+        address: formData,
+        items: orderItems,
+        amount: getCartAmount() + delivery_charges,
+      };
+
+      switch (method) {
+        // API CALL FOR COD
+        case "cod":
+          const response = await axios.post(
+            backendUrl + "/api/order/place",
+            orderData,
+            { headers: { token } }
+          );
+          if (response.data.success) {
+            setCartItems({});
+            navigate("/orders");
+          } else {
+            toast.error(response.data.message);
+          }
+          break;
+        // API CALL FOR STRIPE
+        case "stripe":
+          const responseStripe = await axios.post(
+            backendUrl + "/api/order/stripe",
+            orderData,
+            { headers: { token } }
+          );
+          if (responseStripe.data.success) {
+            const { session_url } = responseStripe.data;
+            window.location.replace(session_url);
+          } else {
+            toast.error(responseStripe.data.message);
+          }
+          break;
+
+        default:
+          break;
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  return (
+    <div>
+      <div className="bg-primary mb-16">
+        {/* CONTAINER */}
+        <form onSubmit={onSubmitHandler} className="max-padd-container py-10">
+          <div className="flex flex-col xl:flex-row gap-20 xl:gap-28">
+            {/* LEFT SIDE */}
+            <div className="flex-1 flex flex-col gap-3 text-[95%]">
+              <Title title1={"Delivery"} title2={"Information"} />
+              <div className="flex gap-3">
+                <input
+                  onChange={onChangeHandler}
+                  value={formData.firstName}
+                  name="firstName"
+                  type="text"
+                  placeholder="First Name"
+                  className="ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm bg-white outline-none w-1/2"
+                  required
+                />
+                <input
+                  onChange={onChangeHandler}
+                  value={formData.lastName}
+                  name="lastName"
+                  type="text"
+                  placeholder="Last Name"
+                  className="ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm bg-white outline-none w-1/2"
+                  required
+                />
+              </div>
+              <input
+                onChange={onChangeHandler}
+                value={formData.email}
+                name="email"
+                type="text"
+                placeholder="Email Address"
+                className="ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm bg-white outline-none"
+                required
+              />
+              <input
+                onChange={onChangeHandler}
+                value={formData.phone}
+                name="phone"
+                type="text"
+                placeholder="Phone Number"
+                className="ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm bg-white outline-none"
+                required
+              />
+              <input
+                onChange={onChangeHandler}
+                value={formData.street}
+                name="street"
+                type="text"
+                placeholder="Street"
+                className="ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm bg-white outline-none"
+                required
+              />
+              <div className="flex gap-3">
+                <input
+                  onChange={onChangeHandler}
+                  value={formData.city}
+                  name="city"
+                  type="text"
+                  placeholder="City"
+                  className="ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm bg-white outline-none w-1/2"
+                  required
+                />
+                <input
+                  onChange={onChangeHandler}
+                  value={formData.state}
+                  name="state"
+                  type="text"
+                  placeholder="State"
+                  className="ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm bg-white outline-none w-1/2"
+                  required
+                />
+              </div>
+              <div className="flex gap-3">
+                <input
+                  onChange={onChangeHandler}
+                  value={formData.zipcode}
+                  name="zipcode"
+                  type="text"
+                  placeholder="Zip Code"
+                  className="ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm bg-white outline-none w-1/2"
+                  required
+                />
+                <input
+                  onChange={onChangeHandler}
+                  value={formData.country}
+                  name="country"
+                  type="text"
+                  placeholder="Country"
+                  className="ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm bg-white outline-none w-1/2"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* RIGHT SIDE */}
+            <div className="flex flex-1 flex-col">
+              <CartTotal />
+              {/* PAYMENT METHOD */}
+              <div className="my-6">
+                <h3 className="bold-20 mb-5">
+                  Payment <span>Method</span>
+                </h3>
+                <div className="flex gap-3">
+                  <div
+                    onClick={() => setMethod("stripe")}
+                    className={`${
+                      method === "stripe" ? "btn-dark" : "btn-white"
+                    } !py-1 text-xs cursor-pointer`}
+                  >
+                    Stripe
+                  </div>
+                  <div
+                    onClick={() => setMethod("cod")}
+                    className={`${
+                      method === "cod" ? "btn-dark" : "btn-white"
+                    } !py-1 text-xs cursor-pointer`}
+                  >
+                    Cash on Delivery
+                  </div>
+                </div>
+              </div>
+              <div>
+                <button type="submit" className="btn-secondary">
+                  Place Order
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default PlaceOrder;
+
+================
+File: Product.jsx
+================
+import React, { useContext, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { ShopContext } from "../context/ShopContext";
+import {
+  FaCheck,
+  FaHeart,
+  FaStar,
+  FaStarHalfStroke,
+  FaTruckFast,
+} from "react-icons/fa6";
+import { TbShoppingBagPlus } from "react-icons/tb";
+import ProductDescription from "../components/ProductDescription";
+import ProductFeatures from "../components/ProductFeatures";
+import RelatedProducts from "../components/RelatedProducts";
+import Footer from "../components/Footer";
+import { backend_url } from "../App";
+
+const Product = () => {
+  const { productId } = useParams();
+  const { products, currency, addToCart } = useContext(ShopContext);
+  const [product, setProduct] = useState(null);
+  const [mainImage, setMainImage] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [storeInfo, setStoreInfo] = useState(null);
+
+  // Fetch product data from ShopContext
+  const fetchProductData = () => {
+    const selectedProduct = products.find((item) => item._id === productId);
+    if (selectedProduct) {
+      setProduct(selectedProduct);
+      setMainImage(selectedProduct.image[0]);
+    }
+  };
+
+  useEffect(() => {
+    fetchProductData();
+  }, [productId, products]);
+
+  // Once product is fetched, get store info using the storeId
+  useEffect(() => {
+    if (product && product.storeId) {
+      axios
+        .get(`${backend_url}/api/store/single?storeId=${product.storeId}`)
+        .then((response) => {
+          if (response.data.success) {
+            setStoreInfo(response.data.store);
+          }
+        })
+        .catch((error) => console.error(error));
+    }
+  }, [product]);
+
+  if (!product) {
+    return <div className="flexCenter h-screen">Loading...</div>;
+  }
+
+  return (
+    <div>
+      <div className="max-padd-container py-10">
+        {/* PRODUCT DATA */}
+        <div className="flex gap-10 flex-col xl:flex-row rounded-2xl p-3 mb-6">
+          {/* IMAGE SECTION */}
+          <div className="flex flex-col gap-4">
+            <div className="w-80 h-80 border rounded-lg overflow-hidden">
+              <img
+                src={mainImage}
+                alt={product.name}
+                className="object-cover w-full h-full"
+              />
+            </div>
+            <div className="flex gap-2">
+              {product.image.map((img, i) => (
+                <div
+                  key={i}
+                  className="w-16 h-16 border rounded cursor-pointer overflow-hidden"
+                  onClick={() => setMainImage(img)}
+                >
+                  <img
+                    src={img}
+                    alt={`thumb-${i}`}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* PRODUCT INFO SECTION */}
+          <div className="flex-1 rounded-2xl px-5 py-3 bg-primary">
+            <h3 className="h3 leading-none">{product.name}</h3>
+            {/* RATING */}
+            <div className="flex items-baseline gap-x-5">
+              <div className="flex items-center gap-x-2 text-secondary">
+                <div className="flex gap-x-2 text-secondary">
+                  <FaStar />
+                  <FaStar />
+                  <FaStar />
+                  <FaStar />
+                  <FaStarHalfStroke />
+                </div>
+                <span className="medium-14">(123)</span>
+              </div>
+            </div>
+            {/* PRICE */}
+            <h4 className="h4 my-2">
+              {currency}
+              {product.price}.00
+            </h4>
+            {/* DESCRIPTION */}
+            <p className="max-w-[555px]">{product.description}</p>
+            {/* STORE INFORMATION */}
+            
+            {/* COLOR OPTIONS */}
+            {product.colors && product.colors.length > 0 && (
+              <div className="flex flex-col gap-4 my-4">
+                <p className="medium-15">Choose a color:</p>
+                <div className="flex gap-2">
+                  {product.colors.map((col, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedColor(col)}
+                      style={{ background: col }}
+                      className={`w-9 h-9 rounded-full flexCenter border ${
+                        selectedColor === col
+                          ? "border-2 border-secondary"
+                          : "border-gray-300"
+                      }`}
+                    >
+                      {selectedColor === col && (
+                        <FaCheck
+                          className={col === "White" ? "text-black" : "text-white"}
+                        />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* ACTION BUTTONS */}
+            <div className="flex items-center gap-x-4">
+              <button
+                onClick={() => addToCart(product._id, selectedColor)}
+                className="btn-secondary rounded-lg sm:w-1/2 flexCenter gap-x-2 capitalize"
+              >
+                Add to Cart <TbShoppingBagPlus />
+              </button>
+              <button className="btn-white rounded-lg py-3.5">
+                <FaHeart />
+              </button>
+            </div>
+            {/* DELIVERY INFO */}
+            <div className="flex items-center gap-x-2 mt-3">
+              <FaTruckFast className="text-lg" />
+              <span className="medium-14">
+                Free Delivery on orders over 500$
+              </span>
+            </div>
+            <hr className="my-3 w-2/3" />
+            <div className="mt-2 flex flex-col gap-1 text-gray-30 text-[14px]">
+              <p>Authenticity You Can Trust</p>
+              <p>Enjoy Cash on Delivery for Your Convenience</p>
+              <p>Easy Returns and Exchanges Within 7 Days</p>
+            </div>
+          </div>
+        </div>
+        {storeInfo && (
+              <div className="mt-4 p-3 bg-white rounded-lg">
+                <h4 className="bold-18">Seller Information</h4>
+                <p className="medium-15">
+                  Store Name: <span className="font-bold">{storeInfo.storeName}</span>
+                </p>
+                {storeInfo.storeAddress && (
+                  <p className="medium-15">
+                    Address: <span>{storeInfo.storeAddress}</span>
+                  </p>
+                )}
+              </div>
+            )}
+        <RelatedProducts category={product.category} />
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
+export default Product;
+
+================
+File: RequestStore.jsx
+================
+import React, { useContext, useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { ShopContext } from "../context/ShopContext";
+
+const RequestStore = () => {
+  const [storeName, setStoreName] = useState("");
+  const [storeAddress, setStoreAddress] = useState("");
+  const { backendUrl, token, currency } = useContext(ShopContext);
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/store/request`,
+        {
+        
+          storeName,
+          storeAddress,
+        },
+        { headers: { token } }
+      );
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setStoreName("");
+        setStoreAddress("");
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        error.response?.data?.message || "Something went wrong. Please try again."
+      );
+    }
+  };
+
+  return (
+    <div className="px-2 sm:px-8 mt-14 pb-16">
+      <form
+        onSubmit={onSubmitHandler}
+        className="flex flex-col gap-y-4 lg:w-[500px] mx-auto bg-white p-6 rounded shadow"
+      >
+        <h3 className="bold-36 text-center mb-4">Request Store Registration</h3>
+        <div>
+          <label htmlFor="storeName" className="medium-15">
+            Store Name
+          </label>
+          <input
+            id="storeName"
+            type="text"
+            placeholder="Enter store name"
+            value={storeName}
+            onChange={(e) => setStoreName(e.target.value)}
+            className="w-full px-3 py-2 ring-1 ring-slate-900/10 rounded bg-white mt-1"
+          />
+        </div>
+        <div>
+          <label htmlFor="storeAddress" className="medium-15">
+            Store Address
+          </label>
+          <input
+            id="storeAddress"
+            type="text"
+            placeholder="Enter store address"
+            value={storeAddress}
+            onChange={(e) => setStoreAddress(e.target.value)}
+            className="w-full px-3 py-2 ring-1 ring-slate-900/10 rounded bg-white mt-1"
+          />
+        </div>
+        <button type="submit" className="btn-dark mt-4">
+          Submit Request
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default RequestStore;
+
+================
+File: StoreManagement.jsx
+================
+// src/pages/StoreManagement.jsx
+  import React, { useEffect, useState, useContext } from "react";
+  import axios from "axios";
+  import { toast } from "react-toastify";
+  import { ShopContext } from "../context/ShopContext";
+  import Footer from "../components/Footer";
+  import banner from "../assets/banner.jpg";
+  import StoreInfoSection from "../components/StoreInfoSection";
+  import ProductsSection from "../components/ProductsSection";
+  import AvatarModal from "../components/AvatarModal";
+  import EditProductModal from "../components/EditProductModal";
+  import CreateProductModal from "../components/CreateProductModal";
+  import Item from "../components/Item";
+  const StoreManagement = () => {
+    // State cửa hàng và sản phẩm
+    const [storeInfo, setStoreInfo] = useState(null);
+    const [storeName, setStoreName] = useState("");
+    const [storeAddress, setStoreAddress] = useState("");
+    const [products, setProducts] = useState([]);
+    const [activeTab, setActiveTab] = useState("info"); // "info" hoặc "products"
+
+    // State modal avatar
+    const [showAvatarModal, setShowAvatarModal] = useState(false);
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [avatarPreview, setAvatarPreview] = useState("");
+
+    // State modal chỉnh sửa sản phẩm
+    const [showEditProductModal, setShowEditProductModal] = useState(false);
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [editProductData, setEditProductData] = useState({
+      name: "",
+      price: "",
+      description: "",
+      category: "",
+      popular: false,
+      colors: "",
+    });
+
+    // State modal tạo sản phẩm mới
+    const [showCreateProductModal, setShowCreateProductModal] = useState(false);
+    const [createProductData, setCreateProductData] = useState({
+      name: "",
+      price: "",
+      description: "",
+      category: "",
+      popular: false,
+      colors: "",
+    });
+
+    const { backendUrl, token, currency } = useContext(ShopContext);
+
+    // Lấy thông tin cửa hàng
+    const getStoreInfo = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/store-management/my-store`, {
+          headers: { token },
+        });
+        if (response.data.success) {
+          setStoreInfo(response.data.store);
+          setStoreName(response.data.store.storeName);
+          setStoreAddress(response.data.store.storeAddress);
+        } else {
+          toast.error(response.data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error(
+          error.response?.data?.message || "Error fetching store information"
+        );
+      }
+    };
+
+    // Cập nhật thông tin cửa hàng
+    const updateStoreInfo = async (e) => {
+      e.preventDefault();
+      try {
+        const response = await axios.put(
+          `${backendUrl}/api/store-management/update-info`,
+          { storeName, storeAddress },
+          { headers: { token } }
+        );
+        if (response.data.success) {
+          toast.success(response.data.message);
+          setStoreInfo(response.data.store);
+        } else {
+          toast.error(response.data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error(
+          error.response?.data?.message || "Error updating store information"
+        );
+      }
+    };
+
+    // Cập nhật avatar cửa hàng qua modal
+    const handleSaveAvatar = async () => {
+      if (!avatarFile) {
+        toast.error("Please select an avatar file.");
+        return;
+      }
+      const formData = new FormData();
+      formData.append("avatar", avatarFile);
+      try {
+        const response = await axios.put(
+          `${backendUrl}/api/store-management/update-avatar`,
+          formData,
+          {
+            headers: {
+              token,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        if (response.data.success) {
+          toast.success(response.data.message);
+          setStoreInfo({ ...storeInfo, storeLogo: response.data.storeLogo });
+          setShowAvatarModal(false);
+        } else {
+          toast.error(response.data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error(
+          error.response?.data?.message || "Error updating store avatar"
+        );
+      }
+    };
+
+    // Khi người dùng chọn file mới cho avatar, cập nhật preview
+    const handleAvatarChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        setAvatarFile(file);
+        setAvatarPreview(URL.createObjectURL(file));
+      }
+    };
+
+    // Lấy danh sách sản phẩm của cửa hàng
+    const getStoreProducts = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/store-management/products`, {
+          headers: { token },
+        });
+        if (response.data.success) {
+          setProducts(response.data.products);
+        } else {
+          toast.error(response.data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error(
+          error.response?.data?.message || "Error fetching store products"
+        );
+      }
+    };
+
+    // Xoá sản phẩm
+    const deleteProduct = async (productId) => {
+      try {
+        const response = await axios.delete(`${backendUrl}/api/store-management/products/${productId}`, {
+          headers: { token },
+        });
+        if (response.data.success) {
+          toast.success(response.data.message);
+          getStoreProducts();
+        } else {
+          toast.error(response.data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error(
+          error.response?.data?.message || "Error deleting product"
+        );
+      }
+    };
+
+    // Mở modal chỉnh sửa sản phẩm và set dữ liệu ban đầu
+    const handleEditProduct = (product) => {
+      setEditingProduct(product);
+      setEditProductData({
+        name: product.name,
+        price: product.price,
+        description: product.description,
+        category: product.category,
+        popular: product.popular,
+        colors: product.colors ? product.colors.join(", ") : "",
+      });
+      setShowEditProductModal(true);
+    };
+
+    // Lưu thay đổi sản phẩm sau khi chỉnh sửa
+    const handleSaveProduct = async () => {
+      if (!editingProduct) return;
+      try {
+        const response = await axios.put(
+          `${backendUrl}/api/store-management/products/${editingProduct._id}`,
+          {
+            name: editProductData.name,
+            price: editProductData.price,
+            description: editProductData.description,
+            category: editProductData.category,
+            popular: editProductData.popular,
+            colors: editProductData.colors.split(",").map((c) => c.trim()),
+          },
+          { headers: { token } }
+        );
+        if (response.data.success) {
+          toast.success(response.data.message);
+          setShowEditProductModal(false);
+          setEditingProduct(null);
+          getStoreProducts();
+        } else {
+          toast.error(response.data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error(
+          error.response?.data?.message || "Error updating product"
+        );
+      }
+    };
+
+    // Mở modal tạo sản phẩm mới
+    const handleOpenCreateProduct = () => {
+      setCreateProductData({
+        name: "",
+        price: "",
+        description: "",
+        category: "",
+        popular: false,
+        colors: "",
+      });
+      setShowCreateProductModal(true);
+    };
+
+  // In your StoreManagement.jsx (or similar parent component)
+const handleSaveNewProduct = async (formData) => {
+  try {
+    // Send the FormData as the request body
+    const response = await axios.post(
+      `${backendUrl}/api/store-management/products`,
+      formData,
+      { headers: { token } } // Do not set "Content-Type" manually here!
+    );
+    if (response.data.success) {
+      toast.success(response.data.message);
+      setShowCreateProductModal(false);
+      getStoreProducts(); // Refresh the product list
+    } else {
+      toast.error(response.data.message);
+    }
+  } catch (error) {
+    console.error(error);
+    toast.error(
+      error.response?.data?.message || "Error creating product"
+    );
+  }
+};
+
+    useEffect(() => {
+      if (token) {
+        getStoreInfo();
+        getStoreProducts();
+      }
+    }, [token]);
+
+    return (
+      <div className="text-tertiary">
+        {/* Banner */}
+        <div className="relative w-full h-52 overflow-hidden mb-8">
+          <img src={banner} alt="StoreBanner" className="object-cover w-full h-full" />
+          <div className="absolute top-0 left-0 w-full h-full bg-black/20" />
+          {storeInfo && (
+            <div
+              className="absolute bottom-4 left-6 flex items-center gap-4 cursor-pointer"
+              onClick={() => setShowAvatarModal(true)}
+            >
+              <img
+                src={storeInfo.storeLogo || "/default_store_logo.png"}
+                alt="StoreAvatar"
+                className="w-20 h-20 rounded-full object-cover ring-2 ring-white"
+              />
+              <div className="text-white">
+                <h2 className="bold-22 mb-1">{storeInfo.storeName || "My Store"}</h2>
+                <p className="text-white">{storeInfo.storeAddress || "No address"}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="max-padd-container">
+          {/* Tab buttons */}
+          <div className="flex gap-6 mb-4 border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab("info")}
+              className={`px-4 py-2 ${activeTab === "info" ? "border-b-2 border-secondary text-secondary" : ""}`}
+            >
+              Store Info
+            </button>
+            <button
+              onClick={() => setActiveTab("products")}
+              className={`px-4 py-2 ${activeTab === "products" ? "border-b-2 border-secondary text-secondary" : ""}`}
+            >
+              Products
+            </button>
+          </div>
+
+          {/* Tab Content */}
+          {activeTab === "info" && (
+            <StoreInfoSection
+              storeName={storeName}
+              setStoreName={setStoreName}
+              storeAddress={storeAddress}
+              setStoreAddress={setStoreAddress}
+              updateStoreInfo={updateStoreInfo}
+            />
+          )}
+
+          {activeTab === "products" && (
+            <ProductsSection
+              products={products}
+              currency={currency}
+              onEdit={handleEditProduct}
+              onDelete={deleteProduct}
+              onCreate={handleOpenCreateProduct}
+            />
+          )}
+        </div>
+
+        {/* Modal cập nhật avatar */}
+        {showAvatarModal && (
+          <AvatarModal
+            avatarPreview={avatarPreview || storeInfo?.storeLogo || "/default_store_logo.png"}
+            handleAvatarChange={handleAvatarChange}
+            handleSaveAvatar={handleSaveAvatar}
+            onCancel={() => setShowAvatarModal(false)}
+          />
+        )}
+
+        {/* Modal chỉnh sửa sản phẩm */}
+        {showEditProductModal && editingProduct && (
+          <EditProductModal
+            editProductData={editProductData}
+            setEditProductData={setEditProductData}
+            handleSaveProduct={handleSaveProduct}
+            onCancel={() => {
+              setShowEditProductModal(false);
+              setEditingProduct(null);
+            }}
+          />
+        )}
+
+        {/* Modal tạo sản phẩm mới */}
+        {showCreateProductModal && (
+          <CreateProductModal
+            createProductData={createProductData}
+            setCreateProductData={setCreateProductData}
+            handleSaveNewProduct={handleSaveNewProduct}
+            onCancel={() => setShowCreateProductModal(false)}
+          />
+        )}
+
+        <Footer />
+      </div>
+    );
+  };
+
+  export default StoreManagement;
+
+================
+File: Verify.jsx
+================
+import React, { useContext, useEffect, useState } from 'react'
+import { ShopContext } from '../context/ShopContext'
+import { useSearchParams } from 'react-router-dom'
+import axios from 'axios'
+import { toast } from 'react-toastify'
+
+const Verify = () => {
+
+    const {navigate, token, setCartItems, backendUrl} = useContext(ShopContext)
+    const [searchParams, setSearchParams] = useSearchParams()
+
+    const success = searchParams.get("success")
+    const orderId = searchParams.get("orderId")
+
+    const verifyPayment = async ()=> {
+       try {
+        if(!token){
+            return null
+        }
+        const response = await axios.post(backendUrl + "/api/order/verifyStripe", {success, orderId}, {headers: {token}})
+        if(response.data.success){
+            setCartItems({})
+            navigate('/orders')
+        }else{
+            navigate('/cart')
+        }
+       } catch (error) {
+        console.log(error)
+        toast.error(error.message)
+       }
+    }
+
+    useEffect(()=>{
+     verifyPayment()
+    }, [])
+
+  return (
+    <div>Verify</div>
+  )
+}
+
+export default Verify
+
+
+
+================================================================
+End of Codebase
+================================================================

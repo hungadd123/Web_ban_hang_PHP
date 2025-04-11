@@ -1,0 +1,1437 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+About.jsx
+AvatarModal.jsx
+Banner.jsx
+Blog.jsx
+CartTotal.jsx
+CreateProductModal.jsx
+EditProductModal.jsx
+Features.jsx
+Footer.jsx
+Header.jsx
+Hero.jsx
+Item.jsx
+Navbar.jsx
+NewArrivals.jsx
+NewsLetter.jsx
+PopularProducts.jsx
+ProductDescription.jsx
+ProductFeatures.jsx
+ProductItem.jsx
+ProductsSection.jsx
+RelatedProducts.jsx
+Search.jsx
+StoreInfoSection.jsx
+StoreProductItem.jsx
+Title.jsx
+
+================================================================
+Files
+================================================================
+
+================
+File: About.jsx
+================
+import React from 'react'
+import Title from './Title'
+import testimonial from "../assets/testimonial.png"
+import { TbLocation } from 'react-icons/tb'
+import { RiAdminLine, RiSecurePaymentLine, RiSoundModuleLine } from 'react-icons/ri'
+import { FaQuoteLeft, FaUsersLine } from 'react-icons/fa6'
+import about from "../assets/about.png"
+
+
+const About = () => {
+  return (
+    <section className='max-padd-container py-16'>
+      {/* CONTAINER */}
+      <div className='flex flex-col md:flex-row gap-5 gap-y-10'>
+        {/* TESTIMONIAL */}
+        <div className='flex-1 flexCenter flex-col'>
+          <Title title1={'People'} title2={"Says"} title1Styles={"h3"} titleStyles={'!pb-2'}/>
+          <img src={testimonial} alt="" height={55} width={55} className='rounded-full'/>
+          <h4 className='h4 mt-6'>John Doe</h4>
+          <p className='relative bottom-2'>CEO At TechStack</p>
+          <FaQuoteLeft className='text-3xl'/>
+          <p className='max-w-[222px] mt-5 text-center'>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Et libero reiciendis quibusdam ad perspiciatis non ut?</p>
+        </div>
+        {/* BANNER */}
+        <div className='flex-[2] flex rounded-2xl relative'>
+          <img src={about} alt="" className='rounded-2xl'/>
+          <div className='absolute h-full w-full bg-white/20 top-0 left-0'/>
+          <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/80 p-6 rounded-xl'>
+            <h4 className='bold-18 text-center'>Top view in this <br />
+            week</h4>
+            <h2 className='h2 uppercase'>Trending</h2>
+          </div>
+        </div>
+        {/* ABOUT */}
+        <div className='flex-[1] flexCenter flex-col'>
+          <Title title1={'About'} title2={"Us"} title1Styles={'h3'} titleStyles={'!pb-2'}/>
+          <div className='flex flex-col items-start'>
+            <div className='flexCenter gap-3 mb-3'>
+              <RiSecurePaymentLine className='text-xl'/>
+              <div>
+                <h5 className='h5'>Fast & Secure</h5>
+                <p>Optimized performance</p>
+              </div>
+            </div>
+            <div className='flexCenter gap-3 mb-3'>
+              <RiSoundModuleLine className='text-xl'/>
+              <div>
+                <h5 className='h5'>Advanced Filtering</h5>
+                <p>Find items quickly</p>
+              </div>
+            </div>
+            <div className='flexCenter gap-3 mb-3'>
+              <FaUsersLine className='text-xl'/>
+              <div>
+                <h5 className='h5'>User Reviews</h5>
+                <p>Ratings & feedback</p>
+              </div>
+            </div>
+            <div className='flexCenter gap-3 mb-3'>
+              <TbLocation className='text-xl'/>
+              <div>
+                <h5 className='h5'>Order Tracking</h5>
+                <p>Live order status</p>
+              </div>
+            </div>
+            <div className='flexCenter gap-3 mb-3'>
+              <RiAdminLine className='text-xl'/>
+              <div>
+                <h5 className='h5'>Admin Dashboard</h5>
+                <p>Manage store easily</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export default About
+
+================
+File: AvatarModal.jsx
+================
+// src/components/AvatarModal.jsx
+import React from "react";
+
+const AvatarModal = ({ avatarPreview, handleAvatarChange, handleSaveAvatar, onCancel }) => {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-white p-6 rounded-xl w-[90%] max-w-md">
+        <h3 className="h3 mb-4">Update Store Avatar</h3>
+        <div className="mb-4">
+          <img
+            src={avatarPreview}
+            alt="Avatar Preview"
+            className="w-32 h-32 rounded-full object-cover mx-auto"
+          />
+        </div>
+        <input type="file" onChange={handleAvatarChange} className="border p-2 w-full mb-4" />
+        <div className="flex justify-end gap-4">
+          <button onClick={onCancel} className="btn-white rounded px-3 py-1">
+            Cancel
+          </button>
+          <button onClick={handleSaveAvatar} className="btn-secondary rounded px-3 py-1">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AvatarModal;
+
+================
+File: Banner.jsx
+================
+import React from 'react'
+import banner1 from "../assets/electronics-banner-1.png"
+import banner2 from "../assets/electronics-banner-2.png"
+
+
+const Banner = () => {
+  return (
+    <section className='max-padd-container'>
+      <div className='flex flex-col sm:flex-row flex-wrap gap-4 xl:gap-14 gap-y-10'>
+        <div className='flex-1'>
+          <img src={banner1} alt="" className='rounded-lg'/>
+        </div>
+        <div className='flex-1'>
+          <img src={banner2} alt="" className='rounded-lg'/>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export default Banner
+
+================
+File: Blog.jsx
+================
+import React from "react";
+import { blogs } from "../assets/data";
+
+const Blog = () => {
+  return (
+    <section className="max-padd-container pb-16">
+      {/* CONTAINER */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        {blogs.slice(0, 4).map((blog) => (
+          <div key={blog.title} className="relative">
+            <img src={blog.image} alt="blogImg" className="rounded-xl" />
+            {/* INFO */}
+              <p className="medium-14 mt-6">{blog.category}</p>
+              <h5 className="h5 pr-4 mb-1">{blog.title}</h5>
+              <p>
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                Aliquid, iusto natus!
+              </p>
+              <button className="underline mt-2 bold-14">
+                continue reading
+              </button>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+export default Blog;
+
+================
+File: CartTotal.jsx
+================
+import React, { useContext } from "react";
+import { ShopContext } from "../context/ShopContext";
+import Title from "./Title";
+
+const CartTotal = () => {
+  const { currency, getCartAmount, delivery_charges } = useContext(ShopContext);
+
+  return (
+    <section className="w-full">
+      <Title title1={"Cart"} title2={"Total"} title1Styles={"h3"} />
+      <div className="flexBetween pt-3">
+        <h5 className="h5">SubTotal:</h5>
+        <p className="h5">
+          {currency}
+          {getCartAmount()}.00
+        </p>
+      </div>
+      <hr className="mx-auto h-[1px] w-full bg-gray-900/10 my-1" />
+      <div className="flexBetween pt-3">
+        <h5 className="h5">Shipping Fee:</h5>
+        <p className="h5">
+          {getCartAmount() === 0 ? "0.00" : `${currency}${delivery_charges}.00`}
+        </p>
+      </div>
+      <hr className="mx-auto h-[1px] w-full bg-gray-900/10 my-1" />
+      <div className="flexBetween pt-3">
+        <h5 className="h5">Total:</h5>
+        <p className="h5">
+          {currency}
+          {getCartAmount() === 0 ? "0.00" : getCartAmount() + delivery_charges}
+        </p>
+      </div>
+    </section>
+  );
+};
+
+export default CartTotal;
+
+================
+File: CreateProductModal.jsx
+================
+// src/components/CreateProductModal.jsx
+import React, { useState } from "react";
+import upload_icon from "../assets/upload.png";
+import { FaCheck } from "react-icons/fa6";
+
+const CreateProductModal = ({
+  createProductData,
+  setCreateProductData,
+  handleSaveNewProduct,
+  onCancel,
+}) => {
+  const [images, setImages] = useState({
+    image1: null,
+    image2: null,
+    image3: null,
+    image4: null,
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleImageChange = (e, key) => {
+    setImages((prev) => ({ ...prev, [key]: e.target.files[0] }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const colorsArray = createProductData.colors.split(",").map((c) => c.trim());
+    const formData = new FormData();
+    formData.append("name", createProductData.name);
+    formData.append("description", createProductData.description);
+    formData.append("price", createProductData.price);
+    formData.append("category", createProductData.category);
+    formData.append("popular", createProductData.popular);
+    formData.append("colors", JSON.stringify(colorsArray));
+
+    Object.keys(images).forEach((key) => {
+      if (images[key]) {
+        formData.append(key, images[key]);
+      }
+    });
+
+    setLoading(true);
+    try {
+      await handleSaveNewProduct(formData);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      onSubmit={handleSubmit}
+    >
+      <div className="bg-white p-6 rounded-xl w-[90%] max-w-md">
+        <h3 className="h3 mb-4">Add New Product</h3>
+        <div className="flex flex-col gap-y-4">
+          {/* Product Name */}
+          <div>
+            <label className="medium-15">Product Name</label>
+            <input
+              type="text"
+              value={createProductData.name}
+              onChange={(e) =>
+                setCreateProductData({ ...createProductData, name: e.target.value })
+              }
+              className="w-full p-2 border rounded"
+              placeholder="Product name"
+            />
+          </div>
+          {/* Description */}
+          <div>
+            <label className="medium-15">Product Description</label>
+            <textarea
+              value={createProductData.description}
+              onChange={(e) =>
+                setCreateProductData({ ...createProductData, description: e.target.value })
+              }
+              className="w-full p-2 border rounded"
+              placeholder="Product description"
+            />
+          </div>
+          {/* Price */}
+          <div>
+            <label className="medium-15">Product Price</label>
+            <input
+              type="number"
+              value={createProductData.price}
+              onChange={(e) =>
+                setCreateProductData({ ...createProductData, price: e.target.value })
+              }
+              className="w-full p-2 border rounded"
+              placeholder="Product price"
+            />
+          </div>
+          {/* Category */}
+          <div>
+            <label className="medium-15">Category</label>
+            <input
+              type="text"
+              value={createProductData.category}
+              onChange={(e) =>
+                setCreateProductData({ ...createProductData, category: e.target.value })
+              }
+              className="w-full p-2 border rounded"
+              placeholder="Product category"
+            />
+          </div>
+          {/* Popular */}
+          <div className="flex items-center gap-2">
+            <label className="medium-15">Popular</label>
+            <input
+              type="checkbox"
+              checked={createProductData.popular}
+              onChange={(e) =>
+                setCreateProductData({ ...createProductData, popular: e.target.checked })
+              }
+            />
+          </div>
+          {/* Colors */}
+          <div>
+            <label className="medium-15">Colors (comma separated)</label>
+            <input
+              type="text"
+              value={createProductData.colors}
+              onChange={(e) =>
+                setCreateProductData({ ...createProductData, colors: e.target.value })
+              }
+              className="w-full p-2 border rounded"
+              placeholder="e.g., Blue, Red"
+            />
+          </div>
+          {/* Upload Images */}
+          <div className="flex gap-2 pt-2">
+            {["image1", "image2", "image3", "image4"].map((imgKey, i) => (
+              <label key={i} htmlFor={imgKey}>
+                <img
+                  src={
+                    images[imgKey]
+                      ? URL.createObjectURL(images[imgKey])
+                      : upload_icon
+                  }
+                  alt="upload preview"
+                  className="w-16 h-16 aspect-square object-cover ring-1 ring-slate-900/5 rounded-lg"
+                />
+                <input
+                  onChange={(e) => handleImageChange(e, imgKey)}
+                  type="file"
+                  id={imgKey}
+                  hidden
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className="flex justify-end gap-4 mt-6">
+          <button type="button" onClick={onCancel} className="btn-white rounded px-3 py-1">
+            Cancel
+          </button>
+          <button type="submit" className="btn-secondary rounded px-3 py-1" disabled={loading}>
+            {loading ? "Saving..." : "Save"}
+          </button>
+        </div>
+      </div>
+    </form>
+  );
+};
+
+export default CreateProductModal;
+
+================
+File: EditProductModal.jsx
+================
+// src/components/EditProductModal.jsx
+import React from "react";
+
+const EditProductModal = ({ editProductData, setEditProductData, handleSaveProduct, onCancel }) => {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-white p-6 rounded-xl w-[90%] max-w-md">
+        <h3 className="h3 mb-4">Edit Product</h3>
+        <div className="flex flex-col gap-y-4">
+          <div>
+            <label className="medium-15">Name</label>
+            <input
+              type="text"
+              value={editProductData.name}
+              onChange={(e) => setEditProductData({ ...editProductData, name: e.target.value })}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div>
+            <label className="medium-15">Price</label>
+            <input
+              type="number"
+              value={editProductData.price}
+              onChange={(e) => setEditProductData({ ...editProductData, price: e.target.value })}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div>
+            <label className="medium-15">Description</label>
+            <textarea
+              value={editProductData.description}
+              onChange={(e) => setEditProductData({ ...editProductData, description: e.target.value })}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div>
+            <label className="medium-15">Category</label>
+            <input
+              type="text"
+              value={editProductData.category}
+              onChange={(e) => setEditProductData({ ...editProductData, category: e.target.value })}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="medium-15">Popular</label>
+            <input
+              type="checkbox"
+              checked={editProductData.popular}
+              onChange={(e) => setEditProductData({ ...editProductData, popular: e.target.checked })}
+            />
+          </div>
+          <div>
+            <label className="medium-15">Colors (comma separated)</label>
+            <input
+              type="text"
+              value={editProductData.colors}
+              onChange={(e) => setEditProductData({ ...editProductData, colors: e.target.value })}
+              className="w-full p-2 border rounded"
+              placeholder="e.g., Red, Blue, Green"
+            />
+          </div>
+        </div>
+        <div className="flex justify-end gap-4 mt-6">
+          <button onClick={onCancel} className="btn-white rounded px-3 py-1">
+            Cancel
+          </button>
+          <button onClick={handleSaveProduct} className="btn-secondary rounded px-3 py-1">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EditProductModal;
+
+================
+File: Features.jsx
+================
+import React from "react";
+import { RiMoneyDollarCircleLine } from "react-icons/ri";
+import { TbTruckDelivery } from "react-icons/tb";
+import { BiSupport } from "react-icons/bi";
+
+const Features = () => {
+  return (
+    <section className="max-padd-container mt-16">
+      {/* CONTAINER */}
+      <div className="max-padd-container flexBetween flex-wrap gap-8 rounded-2xl">
+        <div className="flexCenter gap-x-3">
+          <RiMoneyDollarCircleLine className="text-3xl" />
+          <div>
+            <h4 className="medium-15">MONEY-BACK GUARANTEE</h4>
+            <p>100% refund guaranteed if you're not satisfied.</p>
+          </div>
+        </div>
+        <div className="flexCenter gap-x-3">
+          <TbTruckDelivery className="text-3xl" />
+          <div>
+            <h4 className="medium-15">FREE SHIPPING & RETURNS</h4>
+            <p>Free shipping available on all orders above $99.</p>
+          </div>
+        </div>
+        <div className="flexCenter gap-x-3">
+          <BiSupport className="text-3xl" />
+          <div>
+            <h4 className="medium-15">24/7 ONLINE SUPPORT</h4>
+            <p>Our team is here to assist you round the clock.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Features;
+
+================
+File: Footer.jsx
+================
+import React from "react";
+import cards from "../assets/cards.png"
+
+
+const Footer = () => {
+  return (
+    <footer>
+      <div className="max-padd-container flex items-start justify-between flex-wrap gap-12 mt-12">
+        {/* logo - Left side */}
+        <div className="flex flex-col max-w-sm gap-y-5">
+          <div className="bold-28">
+            Underdogs
+          </div>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas
+            earum reprehenderit possimus!
+          </p>
+          <img src={cards} alt="" height={33} width={144} className="mt-5"/>
+        </div>
+        <div className="flexStart gap-7 xl:gap-x-36 flex-wrap">
+          <ul>
+            <h4 className="h4 mb-3">Customer Service</h4>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Help center
+              </a>
+            </li>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Payment methods
+              </a>
+            </li>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Contact
+              </a>
+            </li>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Shipping status
+              </a>
+            </li>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Complaints
+              </a>
+            </li>
+          </ul>
+          <ul>
+            <h4 className="h4 mb-3">Legal</h4>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Privacy Policy
+              </a>
+            </li>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Cookie settings
+              </a>
+            </li>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Terms & conditions
+              </a>
+            </li>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Cancelation
+              </a>
+            </li>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Imprint
+              </a>
+            </li>
+          </ul>
+          <ul>
+            <h4 className="h4 mb-3">Others</h4>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Our teams
+              </a>
+            </li>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Sustainability
+              </a>
+            </li>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Press
+              </a>
+            </li>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Jobs
+              </a>
+            </li>
+            <li className="my-2">
+              <a href="" className="text-gray-30 regular-14 ">
+                Newsletter
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      {/* copyrights */}
+      <p className="max-padd-container bg-primary medium-14 py-2 px-8 rounded flexBetween mt-6">
+        <span>2025 Underdogs</span>
+        <span>All rights reserved</span>
+      </p>
+    </footer>
+  );
+};
+
+export default Footer;
+
+================
+File: Header.jsx
+================
+import React, { useContext, useState } from "react";
+import { Link } from "react-router-dom";
+import Navbar from "./Navbar";
+import { FaBars, FaBarsStaggered } from "react-icons/fa6";
+import { TbUserCircle } from "react-icons/tb";
+import { RiUserLine } from "react-icons/ri";
+import { ShopContext } from "../context/ShopContext";
+
+const Header = () => {
+  const [menuOpened, setMenuOpened] = useState(false);
+  const { getCartCount, navigate, token, setToken } = useContext(ShopContext);
+
+  const toggleMenu = () => setMenuOpened((prev) => !prev);
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken("");
+    navigate("/login");
+  };
+
+  return (
+    <header className="max-padd-container w-full mb-2">
+      <div className="flexBetween py-3">
+        {/* LOGO  */}
+        <Link to={"/"} className="flex flex-1 bold-24 xl:bold-28">
+          Underdogs
+        </Link>
+        {/* NAVBAR */}
+        <div className="flex-1">
+          <Navbar
+            containerStyles={`${
+              menuOpened
+                ? "flex items-start flex-col gap-y-8 fixed top-16 right-6  p-5 bg-white rounded-xl shadow-md w-52 ring-1 ring-slate-900/5 z-50"
+                : "hidden xl:flex gap-x-5 xl:gap-x-7 medium-15 bg-primary ring-1 ring-slate-900/5 rounded-full p-1"
+            }`}
+            onClick={() => setMenuOpened(false)}
+          />
+        </div>
+        {/* BUTTONS */}
+        <div className="flex-1 flex items-center justify-end gap-x-2 xs:gap-x-8">
+          {/* MENU TOGGLE */}
+          <>
+            {menuOpened ? (
+              <FaBarsStaggered
+                onClick={toggleMenu}
+                className="xl:hidden cursor-pointer text-xl"
+              />
+            ) : (
+              <FaBars
+                onClick={toggleMenu}
+                className="xl:hidden cursor-pointer text-xl"
+              />
+            )}
+          </>
+          {/* CART */}
+          <Link to={"/cart"} className="flex relative">
+            <div className="ring-1 ring-slate-900 rounded-full px-3 bold-18">
+              Cart
+              <span className="bg-secondary text-white text-[12px] font-semibold absolute -top-3.5 -right-2 flexCenter w-4 h-4 rounded-full shadow-md">
+                {getCartCount()}
+              </span>
+            </div>
+          </Link>
+          {/* USER PROFILE */}
+          <div className="group relative">
+            <div>
+              {token ? (
+                <div>
+                  <TbUserCircle className="text-[29px] cursor-pointer" />
+                </div>
+              ) : (
+                <button
+                  onClick={() => navigate("/login")}
+                  className="btn-dark flexCenter gap-x-2"
+                >
+                  Login
+                  <RiUserLine className="text-xl" />
+                </button>
+              )}
+            </div>
+            {token && (
+              <ul className="bg-white p-2 w-32 ring-1 ring-slate-900/5 rounded absolute right-0 top-7 hidden group-hover:flex flex-col medium-14 shadow-md z-50">
+                <li
+                  onClick={() => navigate("/orders")}
+                  className="p-2 text-tertiary rounded-md hover:bg-primary cursor-pointer"
+                >
+                  Orders
+                </li>
+                <li
+                  onClick={() => navigate("/request-store")}
+                  className="p-2 text-tertiary rounded-md hover:bg-primary cursor-pointer"
+                >
+                  Open Store
+                </li>
+                <li
+                  onClick={() => navigate("/my-store")}
+                  className="p-2 text-tertiary rounded-md hover:bg-primary cursor-pointer"
+                >
+                  My Store
+                </li>
+                <li
+                  onClick={logout}
+                  className="p-2 text-tertiary rounded-md hover:bg-primary cursor-pointer"
+                >
+                  Logout
+                </li>
+              </ul>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
+
+================
+File: Hero.jsx
+================
+import React from "react";
+import headphones from "../assets/headphones.png";
+import { FaArrowRightLong } from "react-icons/fa6";
+
+const Hero = () => {
+  return (
+    <section className="max-padd-container">
+      <div className="grid grid-cols-2 bg-hero bg-cover bg-center bg-no-repeat rounded-2xl h-[633px]">
+        {/* LEFT SIDE */}
+        <div className="place-content-end max-xs:min-w-80">
+          <div className="p-4">
+            <p className="text-white max-w-xs">
+              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ab,
+              eveniet quaerat!
+            </p>
+            <button className="btn-white mt-6">Explore more</button>
+          </div>
+        </div>
+        {/* RIGHT SIDE */}
+        <div className="hidden xs:block place-items-end">
+          <div className="flex flex-col rounded-2xl w-[211px] relative top-10 right-4 p-2 bg-white">
+            <img
+              src={headphones}
+              alt=""
+              className="rounded-2xl bg-slate-900/10"
+            />
+            <button className="btn-light !py-1 !text-xs flexCenter gap-2 mt-2">
+              Explore this product
+              <FaArrowRightLong />
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Hero;
+
+================
+File: Item.jsx
+================
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+
+const Item = ({ product }) => {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div className="overflow-hidden">
+      {/* IMAGE */}
+      <Link
+        to={`/product/${product._id}`}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className="flexCenter p-2 bg-[#f5f5f5] overflow-hidden relative"
+      >
+        <img
+          src={
+            product.image.length > 1 && hovered
+              ? product.image[1]
+              : product.image[0]
+          }
+          alt="productImg"
+          className="transition-all duration-300"
+        />
+      </Link>
+      {/* INFO */}
+      <div className="p-3">
+        <h4 className="bold-15 line-clamp-1 !py-0">{product.name}</h4>
+        <div className="flexBetween pt-1">
+          <p className="h5">{product.category}</p>
+          <h5 className="h5 pr-2">${product.price}.00</h5>
+        </div>
+        <p className="line-clamp-2 py-1">{product.description}</p>
+      </div>
+    </div>
+  );
+};
+
+export default Item;
+
+================
+File: Navbar.jsx
+================
+import React from "react";
+import { NavLink } from "react-router-dom";
+
+const Navbar = ({containerStyles, onClick}) => {
+  const navLinks = [
+    { path: "/", title: "Home" },
+    { path: "/collection", title: "Collection" },
+    { path: "/blog", title: "Blog" },
+    { path: "mailto:info@shopanza.com", title: "Contact" },
+  ];
+
+  return (
+    <nav className={`${containerStyles}`}>
+      {navLinks.map((link) => (
+        <NavLink
+          key={link.title}
+          to={link.path}
+          className={({ isActive }) => `${isActive ? "active-link" : ""} px-3 py-2 rounded-full`}
+          onClick={onClick} // Close menu when link clicked
+        >
+          {link.title}
+        </NavLink>
+      ))}
+    </nav>
+  );
+};
+
+export default Navbar;
+
+================
+File: NewArrivals.jsx
+================
+import React, { useContext, useEffect, useState } from "react";
+import Title from "./Title";
+// Import Swiper React components
+import { Swiper, SwiperSlide } from "swiper/react";
+// Import Swiper styles
+import "swiper/css";
+// import required modules
+import { Autoplay } from "swiper/modules";
+import Item from "./Item";
+import { ShopContext } from "../context/ShopContext";
+
+
+const NewArrivals = () => {
+  const {products} = useContext(ShopContext)
+  const [PopularProducts, setPopularProducts] = useState([]);
+
+  useEffect(() => {
+    const data = products.slice(0, 7);
+    setPopularProducts(data);
+  }, [products]);
+
+  return (
+    <section className="max-padd-container pt-16">
+      <Title
+        title1={"New"}
+        title2={"Arrivals"}
+        titleStyles={"pb-14"}
+        paraStyles={"!block"}
+      />
+      {/* CONTAINER */}
+      <Swiper
+        autoplay={{
+          delay: 4000,
+          disableOnInteraction: false,
+        }}
+        breakpoints={{
+          300: {
+            slidesPerView: 2,
+            spaceBetween: 30,
+          },
+          666: {
+            slidesPerView: 3,
+            spaceBetween: 30,
+          },
+          900: {
+            slidesPerView: 4,
+            spaceBetween: 30,
+          },
+          1300: {
+            slidesPerView: 5,
+            spaceBetween: 30,
+          },
+        }}
+        modules={[Autoplay]}
+        className="h-[399px]"
+      >
+        {PopularProducts.map((product) => (
+          <SwiperSlide key={product._id}>
+            <Item product={product}/>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </section>
+  );
+};
+
+export default NewArrivals;
+
+================
+File: NewsLetter.jsx
+================
+import React from 'react'
+import { FaDribbble, FaFacebookF, FaInstagram } from 'react-icons/fa6'
+
+
+const NewsLetter = () => {
+  return (
+    <section className='max-padd-container border-t-[1px] border-b-[1px] border-primary py-4'>
+      <div className='flexBetween flex-wrap gap-7'>
+        <div>
+          <h4 className='bold-14 uppercase tracking-wider'>Subscribe newsletter</h4>
+          <p>Get latest information on Events, Sales & Offers.</p>
+        </div>
+        <div>
+          <div className='flex bg-primary'>
+            <input type="email" placeholder='Email Address' className='p-4 bg-primary w-[266px] outline-none text-[13px]'/>
+            <button className='btn-dark !rounded-none !text-[13px] !font-bold uppercase'>Submit</button>
+          </div>
+        </div>
+        <div className='flex gap-x-3 pr-14'>
+          <div className='h-8 w-8 rounded-full hover:bg-tertiary hover:text-white flexCenter transition-all duration-500'><FaFacebookF /></div>
+          <div className='h-8 w-8 rounded-full hover:bg-tertiary hover:text-white flexCenter transition-all duration-500'><FaInstagram /></div>
+          <div className='h-8 w-8 rounded-full hover:bg-tertiary hover:text-white flexCenter transition-all duration-500'><FaDribbble /></div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export default NewsLetter
+
+================
+File: PopularProducts.jsx
+================
+import React, { useContext, useEffect, useState } from "react";
+import Title from "./Title";
+import Item from "./Item";
+import { ShopContext } from "../context/ShopContext";
+
+
+const PopularProducts = () => {
+const [popularProducts, setPopularProducts] = useState([])
+const {products} = useContext(ShopContext)
+
+useEffect(()=>{
+  const data = products.filter(item => item.popular)
+  setPopularProducts(data.slice(0, 5))
+}, [products])
+  return (
+    <section className="max-padd-container py-16">
+      <Title
+        title1={"Popular"}
+        title2={"Products"}
+        titleStyles={"pb-14"}
+        paraStyles={"!block"}
+      />
+      {/* CONTAINER */}
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+        {popularProducts.map(product=>(
+          <div key={product._id}>
+            <Item product={product}/>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+export default PopularProducts;
+
+================
+File: ProductDescription.jsx
+================
+import React from "react";
+
+const ProductDescription = () => {
+  return (
+    <div className="ring-1 ring-slate-900/10 rounded-lg">
+      <div className="flex gap-3">
+        <button className="medium-14 p-3 w-32 border-b-2 border-secondary">Description</button>
+        <button className="medium-14 p-3 w-32">Care Guide</button>
+        <button className="medium-14 p-3 w-32">Color Guide</button>
+      </div>
+      <hr className="h-[1px] w-full"/>
+      <div className="flex flex-col gap-3 p-3">
+        <div>
+          <h5 className="h5">Detail</h5>
+          <p className="text-sm">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae
+            dicta adipisci nihil deserunt delectus? Dignissimos, numquam eum,
+            voluptates reiciendis ipsa maxime enim quasi praesentium est totam
+            neque dolores quam
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed
+            voluptatem magni cupiditate in voluptates non ea.
+          </p>
+        </div>
+        <div>
+          <h5 className="h5">Benefit</h5>
+          <ul className="list-disc pl-5 text-sm text-gray-30 flex flex-col gap-1">
+            <li>
+              High-quality materials ensure long-lasting durability and comfort.
+            </li>
+            <li>Designed to meet the needs of modern, active lifestyles.</li>
+            <li>Available in a wide range of colors and trendy colors.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProductDescription;
+
+================
+File: ProductFeatures.jsx
+================
+import React from 'react'
+import { RiSecurePaymentLine } from 'react-icons/ri'
+import { TbArrowBackUp, TbTruckDelivery } from 'react-icons/tb'
+
+const ProductFeatures = () => {
+  return (
+    <div className='bg-primary rounded-xl mt-6'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 rounded-xl'>
+            <div className='flexCenter gap-x-4 p-2 rounded-3xl'>
+                <div className='text-3xl'><TbArrowBackUp className='mb-3 text-yellow-500'/></div>
+                <div>
+                    <h4 className='h4 capitalize'>Easy Return</h4>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem eaque corrupti asperiores animi, praesentium temporibus!</p>
+                </div>
+            </div>
+            <div className='flexCenter gap-x-4 p-2 rounded-3xl'>
+                <div className='text-3xl'><TbTruckDelivery className='mb-3 text-red-500'/></div>
+                <div>
+                    <h4 className='h4 capitalize'>Fast Delivery</h4>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem eaque corrupti asperiores animi, praesentium temporibus!</p>
+                </div>
+            </div>
+            <div className='flexCenter gap-x-4 p-2 rounded-3xl'>
+                <div className='text-3xl'><RiSecurePaymentLine className='mb-3 text-blue-500'/></div>
+                <div>
+                    <h4 className='h4 capitalize'>Secure Payment</h4>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem eaque corrupti asperiores animi, praesentium temporibus!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+  )
+}
+
+export default ProductFeatures
+
+================
+File: ProductItem.jsx
+================
+// src/components/ProductItem.jsx
+import React from "react";
+import { TbPencil, TbTrash } from "react-icons/tb";
+
+const ProductItem = ({ product, currency, onEdit, onDelete }) => {
+  return (
+    <div className="border p-4 rounded-lg relative">
+      <h4 className="bold-18 mb-1">{product.name}</h4>
+      <p className="medium-15 text-secondary">
+        {currency}{product.price}.00
+      </p>
+      <p className="text-gray-600 mb-3">{product.description}</p>
+      <div className="flex gap-2">
+        <button onClick={() => onEdit(product)} className="btn-secondary rounded px-3 py-1 flex items-center gap-1">
+          <TbPencil /> Edit
+        </button>
+        <button onClick={() => onDelete(product._id)} className="btn-white rounded px-3 py-1 text-red-500 flex items-center gap-1">
+          <TbTrash /> Delete
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default ProductItem;
+
+================
+File: ProductsSection.jsx
+================
+// src/components/ProductsSection.jsx
+import React from "react";
+import StoreProductItem from "./StoreProductItem";
+
+const ProductsSection = ({ products, currency, onEdit, onDelete, onCreate }) => {
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-md">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="h3">My Products</h3>
+        <button onClick={onCreate} className="btn-secondary px-4 py-2">
+          Add Product
+        </button>
+      </div>
+      {products.length > 0 ? (
+        <div className="grid grid-cols-4 md:grid-cols-3 gap-4">
+          {products.map((prod) => (
+            <StoreProductItem
+              key={prod._id}
+              product={prod}
+              currency={currency}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
+        </div>
+      ) : (
+        <p>No products found for your store.</p>
+      )}
+    </div>
+  );
+};
+
+export default ProductsSection;
+
+================
+File: RelatedProducts.jsx
+================
+import React, { useContext, useEffect, useState } from "react";
+import Title from "./Title";
+import { products } from "../assets/data";
+import Item from "./Item";
+import { ShopContext } from "../context/ShopContext";
+
+const RelatedProducts = ({ category }) => {
+  const { products } = useContext(ShopContext);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      let filtered = products.slice();
+      filtered = filtered.filter((item) => category === item.category);
+
+      setRelatedProducts(filtered.slice(0, 5))
+    }
+  }, [products]);
+
+  return (
+    <section className="py-16">
+      <Title
+        title1={"Related"}
+        title2={"Products"}
+        titleStyles={"pb-10"}
+      />
+      {/* CONTAINER */}
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+        {relatedProducts.map((product) => (
+          <div key={product._id}>
+            <Item product={product} />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+export default RelatedProducts;
+
+================
+File: Search.jsx
+================
+import React, { useContext, useState } from 'react'
+import { ShopContext } from '../context/ShopContext'
+import {FaSearch} from "react-icons/fa"
+
+const Search = () => {
+    const {search, setSearch} = useContext(ShopContext)
+
+  return (
+    <div className='py-4 pb-7'>
+        <div className='text-center'>
+            <div className='inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-white overflow-hidden w-full'>
+                <input type="text" value={search} onChange={(e)=> setSearch(e.target.value)} placeholder='Search here...' className='border-none outline-none w-full bg-white text-sm' />
+                <div>
+                    <FaSearch className='cursor-pointer'/>
+                </div>
+            </div>
+        </div>
+    </div>
+  )
+}
+
+export default Search
+
+================
+File: StoreInfoSection.jsx
+================
+// src/components/StoreInfoSection.jsx
+import React from "react";
+
+const StoreInfoSection = ({ storeName, setStoreName, storeAddress, setStoreAddress, updateStoreInfo }) => {
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-md mb-10">
+      <h3 className="h3 mb-4">Store Information</h3>
+      <form onSubmit={updateStoreInfo} className="flex flex-col gap-y-4">
+        <div>
+          <label className="medium-15">Store Name</label>
+          <input
+            type="text"
+            value={storeName}
+            onChange={(e) => setStoreName(e.target.value)}
+            placeholder="Enter store name"
+            className="w-full p-2 border rounded"
+          />
+        </div>
+        <div>
+          <label className="medium-15">Store Address</label>
+          <input
+            type="text"
+            value={storeAddress}
+            onChange={(e) => setStoreAddress(e.target.value)}
+            placeholder="Enter store address"
+            className="w-full p-2 border rounded"
+          />
+        </div>
+        <button type="submit" className="btn-secondary mt-2 w-fit">
+          Update Store Info
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default StoreInfoSection;
+
+================
+File: StoreProductItem.jsx
+================
+// src/components/StoreProductItem.jsx
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { TbPencil, TbTrash } from "react-icons/tb";
+
+const StoreProductItem = ({ product, currency, onEdit, onDelete }) => {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div className="overflow-hidden border p-4 rounded-lg">
+      {/* IMAGE */}
+      <Link
+        to={`/product/${product._id}`}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className="flexCenter p-2 bg-[#f5f5f5] overflow-hidden relative"
+      >
+        <img
+          src={
+            product.image.length > 1 && hovered
+              ? product.image[1]
+              : product.image[0]
+          }
+          alt="productImg"
+          className="object-cover w-full h-full transition-all duration-300"
+        />
+      </Link>
+      {/* INFO */}
+      <div className="p-3">
+        <h4 className="bold-15 line-clamp-1 !py-0">{product.name}</h4>
+        <div className="flexBetween pt-1">
+          <p className="h5">{product.category}</p>
+          <h5 className="h5 pr-2">
+            ${product.price}.00
+          </h5>
+        </div>
+        <p className="line-clamp-2 py-1">{product.description}</p>
+        {/* Edit & Delete Buttons */}
+        <div className="flex gap-2 mt-2">
+          <button
+            onClick={() => onEdit(product)}
+            className="btn-secondary rounded px-3 py-1 flex items-center gap-1"
+          >
+            <TbPencil /> Edit
+          </button>
+          <button
+            onClick={() => onDelete(product._id)}
+            className="btn-white rounded px-3 py-1 text-red-500 flex items-center gap-1"
+          >
+            <TbTrash /> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default StoreProductItem;
+
+================
+File: Title.jsx
+================
+import React from "react";
+
+const Title = ({ title1, title2, titleStyles, title1Styles, paraStyles }) => {
+  return (
+    <div className={`${titleStyles}`}>
+      <h2 className={`${title1Styles} h2`}>
+        {title1}
+        <span className="text-secondary !font-light underline"> {title2}</span>
+      </h2>
+      <p className={`${paraStyles} hidden`}>
+        Discover the best deals on top-quality products, Crafted <br /> to elevate your
+        everyday experience.
+      </p>
+    </div>
+  );
+};
+
+export default Title;
+
+
+
+================================================================
+End of Codebase
+================================================================
