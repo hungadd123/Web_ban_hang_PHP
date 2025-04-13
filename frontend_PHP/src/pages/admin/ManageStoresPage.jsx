@@ -56,7 +56,7 @@ const ManageStoresPage = () => {
             const errMsg = err.response?.data?.message || "An error occurred fetching stores.";
              setError(errMsg);
             if(err.response?.status === 401){
-                setError("Unauthenticated. Please log in again."); // Cụ thể hóa lỗi 401
+                setError("Unauthenticated. Please log in again."); 
             }
              setStores([]);
              setPagination({ currentPage: 1, totalPages: 1, totalStores: 0 });

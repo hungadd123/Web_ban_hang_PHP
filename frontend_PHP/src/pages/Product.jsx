@@ -54,8 +54,10 @@ const Product = () => {
         }
         try {
             const response = await axios.get(`${backendUrl}/api/store/findStoreById/${storeId}`);
-            if (response.data.status === 200 && response.data.store) {
+
+            if (response.data.success==true && response.data.store) {
                 setStoreInfo(response.data.store);
+                console.log(storeInfo)
             } else {
                 console.warn("Could not fetch store info:", response.data.message);
                 setStoreInfo(null);

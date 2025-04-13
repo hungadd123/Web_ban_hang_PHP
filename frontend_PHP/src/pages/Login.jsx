@@ -22,11 +22,11 @@ const Login = () => {
           email,
           password,
         });
-        if (response.data.success) {
-          setToken(response.data.token);
-          localStorage.setItem("token", response.data.token);
+        if (response.success) {
+          setToken(response.token);
+          localStorage.setItem("token", response.token);
         } else {
-          toast.error(response.data.message);
+          toast.error(response.message);
         }
       } else {
         await axios.get(`${backendUrl}/sanctum/csrf-cookie`, {

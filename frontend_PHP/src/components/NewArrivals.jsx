@@ -65,6 +65,7 @@ const NewArrivals = () => {
       >
         {newArrivals.map((product) => (
           <SwiperSlide key={product.id}>
+            
             <Item product={product} className="h-full" />
           </SwiperSlide>
         ))}
