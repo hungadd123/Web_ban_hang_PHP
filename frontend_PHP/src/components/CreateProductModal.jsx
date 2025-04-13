@@ -1,8 +1,8 @@
-// src/components/CreateProductModal.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { toast } from 'react-toastify';
+import { ShopContext } from "../context/ShopContext";
+import axios from 'axios';
 
-// Import Shadcn UI components
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -15,93 +15,155 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-// Import Icons
 import { Upload, Loader2 } from "lucide-react";
 
 const CreateProductModal = ({
     isOpen,
     onClose,
-    createProductData,
-    setCreateProductData,
     handleSaveNewProduct,
+    storeId // <-- Nhận storeId từ props
 }) => {
-    const [images, setImages] = useState({ image1: null, image2: null, image3: null, image4: null });
-    const [imagePreviews, setImagePreviews] = useState({ image1: null, image2: null, image3: null, image4: null });
+    const [productData, setProductData] = useState({
+        productName: "",
+        productDetail: "",
+        price: "",
+        category_id: "",
+        remainQuantity: "",
+    });
+    const [thumbnailFile, setThumbnailFile] = useState(null);
+    const [thumbnailPreview, setThumbnailPreview] = useState(null);
+    const [detailImageFiles, setDetailImageFiles] = useState([]);
+    const [detailImagePreviews, setDetailImagePreviews] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadingCategories, setLoadingCategories] = useState(false);
+    const { backendUrl } = useContext(ShopContext);
 
-    // Reset state khi modal đóng/mở lại
+
+    const resetForm = () => {
+        setProductData({ productName: "", productDetail: "", price: "", category_id: "", remainQuantity: "" });
+        setThumbnailFile(null);
+        setThumbnailPreview(null);
+        setDetailImageFiles([]);
+        setDetailImagePreviews([]);
+        setLoading(false);
+    };
+
     useEffect(() => {
         if (!isOpen) {
-            setImages({ image1: null, image2: null, image3: null, image4: null });
-            setImagePreviews({ image1: null, image2: null, image3: null, image4: null });
-            setLoading(false);
-            // Reset createProductData nếu component cha không làm
-            // setCreateProductData({ name: "", price: "", description: "", category: "", popular: false, colors: "" });
+            resetForm();
+        } else {
+            fetchCategories();
         }
     }, [isOpen]);
 
-    const handleImageChange = (e, key) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            // Clean up previous preview URL before creating a new one
-            if (imagePreviews[key]) {
-                URL.revokeObjectURL(imagePreviews[key]);
+    const fetchCategories = async () => {
+        setLoadingCategories(true);
+        try {
+            const response = await axios.get(`${backendUrl}/api/category`);
+            if (response.data.status === 200 && Array.isArray(response.data.category)) {
+                setCategories(response.data.category);
+            } else {
+                 toast.error("Could not load categories.");
+                 setCategories([]);
             }
-            setImages((prev) => ({ ...prev, [key]: file }));
-            setImagePreviews((prev) => ({ ...prev, [key]: URL.createObjectURL(file) }));
-        } else {
-             setImages((prev) => ({ ...prev, [key]: null }));
-             if (imagePreviews[key]) {
-                URL.revokeObjectURL(imagePreviews[key]);
-             }
-             setImagePreviews((prev) => ({ ...prev, [key]: null }));
+        } catch (error) {
+            toast.error("Error loading categories.");
+            console.error("Fetch categories error:", error);
+            setCategories([]);
+        } finally {
+            setLoadingCategories(false);
         }
     };
 
-     const handleCheckedChange = (checked) => {
-        setCreateProductData(prev => ({ ...prev, popular: !!checked }));
-     };
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setProductData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleCategoryChange = (value) => {
+        setProductData(prev => ({ ...prev, category_id: value }));
+    };
+
+    const handleThumbnailChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (thumbnailPreview) {
+                URL.revokeObjectURL(thumbnailPreview);
+            }
+            setThumbnailFile(file);
+            setThumbnailPreview(URL.createObjectURL(file));
+        } else {
+            if (thumbnailPreview) {
+                URL.revokeObjectURL(thumbnailPreview);
+            }
+            setThumbnailFile(null);
+            setThumbnailPreview(null);
+        }
+    };
+
+    const handleDetailImagesChange = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            detailImagePreviews.forEach(URL.revokeObjectURL);
+            const limitedFiles = files.slice(0, 5);
+            setDetailImageFiles(limitedFiles);
+            setDetailImagePreviews(limitedFiles.map(file => URL.createObjectURL(file)));
+        } else {
+            detailImagePreviews.forEach(URL.revokeObjectURL);
+            setDetailImageFiles([]);
+            setDetailImagePreviews([]);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (loading) return;
+        if (loading || !storeId) { // Thêm kiểm tra storeId
+             if(!storeId) toast.error("Store ID is missing.");
+             return;
+        }
 
-        // --- Validation (giữ nguyên) ---
-        if (!createProductData.name || !createProductData.price || !createProductData.category) {
-             return toast.error("Please fill in Name, Price, and Category.");
+        if (!productData.productName || !productData.price || !productData.category_id || !productData.remainQuantity) {
+            return toast.error("Please fill in Name, Price, Category, and Quantity.");
         }
-         if (isNaN(parseFloat(createProductData.price)) || parseFloat(createProductData.price) <= 0) {
+        if (isNaN(parseFloat(productData.price)) || parseFloat(productData.price) <= 0) {
             return toast.error("Please enter a valid positive price.");
-         }
-        const imageFiles = Object.values(images).filter(Boolean);
-        if (imageFiles.length === 0) {
-            return toast.error("Please upload at least one image.");
         }
-        // --- Kết thúc Validation ---
+        if (isNaN(parseInt(productData.remainQuantity)) || parseInt(productData.remainQuantity) < 0) {
+            return toast.error("Please enter a valid non-negative quantity.");
+        }
+        if (!thumbnailFile) {
+            return toast.error("Please upload a thumbnail image.");
+        }
+        if (detailImageFiles.length < 2) {
+            return toast.error("Please upload at least two detail images.");
+        }
 
         setLoading(true);
         const formData = new FormData();
-        // --- Append FormData (giữ nguyên) ---
-        formData.append("name", createProductData.name);
-        formData.append("description", createProductData.description);
-        formData.append("price", createProductData.price);
-        formData.append("category", createProductData.category);
-        formData.append("popular", createProductData.popular.toString());
-        const colorsArray = createProductData.colors.split(",").map((c) => c.trim().replace(/['"]+/g, '')).filter(Boolean);
-        formData.append("colors", JSON.stringify(colorsArray));
-        imageFiles.forEach((file, index) => {
-            formData.append(`image${index + 1}`, file);
+
+        formData.append("productName", productData.productName);
+        formData.append("productDetail", productData.productDetail);
+        formData.append("price", productData.price);
+        formData.append("category_id", productData.category_id);
+        formData.append("remainQuantity", productData.remainQuantity);
+        formData.append("store_id", storeId); // <-- THÊM store_id VÀO ĐÂY
+        if(thumbnailFile) {
+            formData.append("thumbnail", thumbnailFile);
+        }
+        detailImageFiles.forEach((file) => {
+            formData.append('imageDetails[]', file);
         });
-        // --- Kết thúc Append ---
+
 
         try {
             await handleSaveNewProduct(formData);
+            onClose();
         } catch (error) {
-             console.error("Error caught in modal submit:", error);
+            console.error("Error caught in modal submit:", error);
+
         } finally {
             setLoading(false);
         }
@@ -116,119 +178,125 @@ const CreateProductModal = ({
                         Fill in the details for the new product.
                     </DialogDescription>
                 </DialogHeader>
-                {/* --- SỬA LAYOUT FORM Ở ĐÂY --- */}
-                 <form id="product-create-form" onSubmit={handleSubmit} className="space-y-4 py-4 max-h-[80vh] overflow-y-auto px-1"> {/* Thêm space-y, bỏ grid */}
-
-                    {/* Name */}
-                    <div className="space-y-1.5"> {/* Nhóm Label và Input */}
-                        <Label htmlFor="create-name">Name</Label>
+                <form id="product-create-form" onSubmit={handleSubmit} className="space-y-4 py-4 max-h-[80vh] overflow-y-auto px-1">
+                    <div className="space-y-1.5">
+                        <Label htmlFor="productName">Name</Label>
                         <Input
-                            id="create-name"
-                            value={createProductData.name}
-                            onChange={(e) => setCreateProductData({ ...createProductData, name: e.target.value })}
+                            id="productName"
+                            name="productName"
+                            value={productData.productName}
+                            onChange={handleInputChange}
                             placeholder="Product name"
                             required
                         />
                     </div>
-
-                    {/* Description */}
                     <div className="space-y-1.5">
-                        <Label htmlFor="create-description">Description</Label>
+                        <Label htmlFor="productDetail">Description</Label>
                         <Textarea
-                            id="create-description"
-                            value={createProductData.description}
-                            onChange={(e) => setCreateProductData({ ...createProductData, description: e.target.value })}
+                            id="productDetail"
+                            name="productDetail"
+                            value={productData.productDetail}
+                            onChange={handleInputChange}
                             className="min-h-[100px]"
                             placeholder="Product description"
                         />
                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <div className="space-y-1.5">
+                               <Label htmlFor="price">Price</Label>
+                               <Input
+                                   id="price"
+                                   name="price"
+                                   type="number"
+                                   step="1000"
+                                   min="0"
+                                   value={productData.price}
+                                   onChange={handleInputChange}
+                                   placeholder="Product price (e.g., 50000)"
+                                   required
+                               />
+                           </div>
+                           <div className="space-y-1.5">
+                               <Label htmlFor="remainQuantity">Quantity</Label>
+                               <Input
+                                   id="remainQuantity"
+                                   name="remainQuantity"
+                                   type="number"
+                                   min="0"
+                                   step="1"
+                                   value={productData.remainQuantity}
+                                   onChange={handleInputChange}
+                                   placeholder="Initial stock quantity"
+                                   required
+                               />
+                           </div>
+                    </div>
 
-                    {/* Price */}
                     <div className="space-y-1.5">
-                        <Label htmlFor="create-price">Price</Label>
-                        <Input
-                            id="create-price"
-                            type="number"
-                            step="0.01"
-                            min="0.01"
-                            value={createProductData.price}
-                            onChange={(e) => setCreateProductData({ ...createProductData, price: e.target.value })}
-                            placeholder="Product price"
-                            required
-                        />
-                    </div>
+                       <Label htmlFor="category_id">Category</Label>
+                        <Select
+                           value={productData.category_id}
+                           onValueChange={handleCategoryChange}
+                           required
+                        >
+                           <SelectTrigger id="category_id">
+                               <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Select a category"} />
+                           </SelectTrigger>
+                           <SelectContent>
+                               {!loadingCategories && categories.length > 0 ? (
+                                   categories.map((cat) => (
+                                       <SelectItem key={cat.id} value={String(cat.id)}>
+                                           {cat.categoryName}
+                                       </SelectItem>
+                                   ))
+                               ) : !loadingCategories ? (
+                                   <SelectItem value="no-cat" disabled>No categories found</SelectItem>
+                               ) : null}
+                           </SelectContent>
+                       </Select>
+                   </div>
 
-                    {/* Category */}
-                    <div className="space-y-1.5">
-                        <Label htmlFor="create-category">Category</Label>
-                        <Input
-                            id="create-category"
-                            value={createProductData.category}
-                            onChange={(e) => setCreateProductData({ ...createProductData, category: e.target.value })}
-                            placeholder="Product category"
-                            required
-                        />
-                        {/* Hoặc dùng Select nếu muốn */}
-                        {/* <Select value={createProductData.category} onValueChange={value => setCreateProductData(prev => ({...prev, category: value}))}> ... </Select> */}
-                    </div>
-
-                    {/* Colors */}
-                    <div className="space-y-1.5">
-                        <Label htmlFor="create-colors">Colors</Label>
-                        <Input
-                            id="create-colors"
-                            value={createProductData.colors}
-                            onChange={(e) => setCreateProductData({ ...createProductData, colors: e.target.value })}
-                            placeholder="Comma-separated, e.g., Red, Blue"
-                        />
-                    </div>
-
-                    {/* Popular */}
-                    <div className="flex items-center space-x-2 pt-2"> {/* Dùng flex để Checkbox và Label cùng hàng */}
-                        <Checkbox
-                            id="create-popular"
-                            checked={createProductData.popular}
-                            onCheckedChange={handleCheckedChange}
-                        />
-                        <Label htmlFor="create-popular" className="text-sm font-medium leading-none cursor-pointer"> {/* Thêm cursor-pointer */}
-                            Mark as Popular
-                        </Label>
-                    </div>
-
-                    {/* Upload Images */}
                     <div className="space-y-2 pt-2">
-                         <Label className="text-base">Product Images (up to 4)</Label>
-                         <div className="flex flex-wrap gap-4">
-                            {["image1", "image2", "image3", "image4"].map((imgKey) => (
-                                <Label key={imgKey} htmlFor={imgKey} className="cursor-pointer w-24 h-24 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors bg-gray-50 dark:bg-gray-800">
-                                    {imagePreviews[imgKey] ? (
-                                        <img
-                                            src={imagePreviews[imgKey]}
-                                            alt={`${imgKey} preview`}
-                                            className="w-full h-full object-cover rounded-lg"
-                                        />
-                                    ) : (
-                                         <Upload className="w-10 h-10" />
-                                    )}
-                                    <input
-                                        onChange={(e) => handleImageChange(e, imgKey)}
-                                        type="file"
-                                        accept="image/*"
-                                        id={imgKey}
-                                        hidden
-                                    />
-                                </Label>
-                            ))}
-                        </div>
-                    </div>
-                 </form>
-                 {/* --- KẾT THÚC SỬA LAYOUT FORM --- */}
-                 <DialogFooter className="pt-4 border-t">
-                     <DialogClose asChild>
+                       <Label htmlFor="thumbnail">Thumbnail Image (Required)</Label>
+                       <Input
+                           id="thumbnail"
+                           type="file"
+                           accept="image/*"
+                           onChange={handleThumbnailChange}
+                           className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                           required
+                       />
+                       {thumbnailPreview && (
+                            <img src={thumbnailPreview} alt="Thumbnail Preview" className="mt-2 h-24 w-24 rounded-lg object-cover border"/>
+                       )}
+                   </div>
+
+                    <div className="space-y-2 pt-2">
+                       <Label htmlFor="detailImages">Detail Images (Min. 2 Required)</Label>
+                       <Input
+                           id="detailImages"
+                           type="file"
+                           accept="image/*"
+                           multiple
+                           onChange={handleDetailImagesChange}
+                           className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                           required
+                        />
+                        {detailImagePreviews.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {detailImagePreviews.map((previewUrl, index) => (
+                                    <img key={index} src={previewUrl} alt={`Detail Preview ${index + 1}`} className="h-20 w-20 rounded-lg object-cover border"/>
+                                ))}
+                            </div>
+                        )}
+                   </div>
+                </form>
+                <DialogFooter className="pt-4 border-t">
+                    <DialogClose asChild>
                         <Button type="button" variant="outline" disabled={loading}>
                             Cancel
                         </Button>
-                     </DialogClose>
+                    </DialogClose>
                     <Button type="submit" form="product-create-form" disabled={loading}>
                         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Save Product

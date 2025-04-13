@@ -24,7 +24,7 @@ const ProtectedAdminRoute = ({ children }) => {
     }
 
    
-    if (!user || user?.roleId?.roleName !== 'admin') {
+    if (!user || user?.role_id !== 1) {
         toast.error("Access Denied: Admin privileges required.");
         
         return <Navigate to="/" replace />;

@@ -12,7 +12,7 @@ const NewArrivals = () => {
   const { products } = useContext(ShopContext);
   const [newArrivals, setNewArrivals] = useState([]);
   const swiperRef = useRef(null);
-
+  console.log(products)
   useEffect(() => {
     const data = products.slice(-8);
     setNewArrivals(data);

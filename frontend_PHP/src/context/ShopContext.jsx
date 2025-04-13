@@ -1,5 +1,4 @@
-// src/context/ShopContext.jsx (Phiên bản đầy đủ và sửa lỗi)
-import React, { createContext, useEffect, useState, useCallback } from "react"; // Thêm useCallback
+import React, { createContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -14,299 +13,155 @@ const ShopContextProvider = (props) => {
         JSON.parse(localStorage.getItem("storeInfo")) || null
     );
     const [token, setToken] = useState(localStorage.getItem("token") || "");
-    const [loading, setLoading] = useState(true); // Loading chung cho dữ liệu ban đầu
+    const [loading, setLoading] = useState(true);
     const [userNotifications, setUserNotifications] = useState([]);
-    const [user, setUser] = useState(null); // State cho thông tin user
+    const [user, setUser] = useState(null);
 
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const navigate = useNavigate();
-    const currency = "";
+    const currency = "VND";
     const delivery_charges = 30000;
 
-    // --- CÁC HÀM FETCH DỮ LIỆU ---
-
-    const fetchUserData = useCallback(async () => { // Bọc trong useCallback
-        if (!token) {
-             setUser(null); // Xóa user nếu không có token
-             // setLoading(false); // Không set loading ở đây nữa
-             return;
-        }
-        // setLoading(true); // Không cần thiết nếu initialLoad quản lý
-        try {
-            const response = await axios.get(`${backendUrl}/api/user/getProfile`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                withCredentials: true,
-            }
-            );
-            if (response.data.status === 200) {
-                setUser(response.data.user);
-            } else {
-                console.error("Fetch user failed:", response.data.message);
-                if (response.status === 401) { // Token không hợp lệ hoặc hết hạn
-                    setToken("");
-                    localStorage.removeItem("token");
-                    updateStoreInfoContext(null); // Xóa store info
-                    setUser(null);
-                    toast.warn("Session expired. Please log in again.");
-                    navigate("/login");
-                }
-            }
-        } catch (error) {
-            console.error("Error fetching user data:", error);
-            if (error.response && error.response.status === 401) {
-                setToken("");
-                localStorage.removeItem("token");
-                updateStoreInfoContext(null);
-                setUser(null);
-                toast.warn("Session expired. Please log in again.");
-                navigate("/login");
-            }
-        } finally {
-            // setLoading(false); // Quản lý bởi initialLoad
-        }
-    }, [token, backendUrl, navigate]); // Thêm navigate
-
-    const fetchProducts = useCallback(async () => {
-        try {
-            
-            const response = await axios.get(`${backendUrl}/api/product/`, {
-                withCredentials: true,
-            });
-    
-            const rawProducts = Array.isArray(response.data) ? response.data : [];
-    
-            const cleanedProducts = rawProducts.map(product => {
-                // Dùng thumbnail 
-                const cleanedImages = product.thumbnail
-                    ? [product.thumbnail]
-                    : ['/placeholder-image.png'];
-    
-                // Xử lý colors 
-                let cleanedColors = [];
-                if (product.colors) {
-                    if (Array.isArray(product.colors)) {
-                        cleanedColors = product.colors
-                            .map(color => typeof color === 'string' ? color.replace(/['"]+/g, '') : color)
-                            .filter(Boolean);
-                    } else if (typeof product.colors === 'string') {
-                        try {
-                            const parsedColors = JSON.parse(product.colors);
-                            if (Array.isArray(parsedColors)) {
-                                cleanedColors = parsedColors.map(color =>
-                                    typeof color === 'string' ? color.replace(/['"]+/g, '') : color
-                                ).filter(Boolean);
-                            } else {
-                                cleanedColors = product.colors
-                                    .split(',')
-                                    .map(c => c.trim().replace(/['"]+/g, ''))
-                                    .filter(Boolean);
-                            }
-                        } catch (e) {
-                            cleanedColors = product.colors
-                                .split(',')
-                                .map(c => c.trim().replace(/['"]+/g, ''))
-                                .filter(Boolean);
-                        }
-                    }
-                }
-    
-                return { ...product, image: cleanedImages, colors: cleanedColors };
-            });
-    
-            setProducts(cleanedProducts);
-        } catch (error) {
-            console.log("Error fetching products:", error);
-            toast.error("Failed to load products.");
-        }
-    }, [backendUrl]);
-    
-    
-
-    const fetchStoreData = useCallback(async () => { // Bọc trong useCallback
-        if (!token) {
-            updateStoreInfoContext(null); // Xóa store info nếu không có token
-            return;
-        }
-        try {
-            const response = await axios.get(`${backendUrl}/api/store/findStoreById`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                withCredentials: true,
-            });
-            if (response.data.status === 200) {
-                updateStoreInfoContext(response.data.store);
-            } else {
-                // Không nhất thiết là lỗi nếu user không có store
-                 updateStoreInfoContext(null);
-                // toast.error(response.data.message);
-            }
-        } catch (error) {
-             updateStoreInfoContext(null);
-             if (!(error.response && error.response.status === 404)) {
-                console.error("Error fetching store info:", error);
-                toast.error(error.response?.data?.message || "Error fetching store information");
-            }
-        }
-    }, [token, backendUrl]); // Phụ thuộc token và backendUrl
-
-
-     const getUserCart = useCallback(async () => { // Bọc trong useCallback
-        if (!token) {
-             setCartItems({}); // Xóa cart nếu không có token
-             return;
-        }
-        try {
-            const response = await axios.post(
-                backendUrl + "/api/cart/",
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                }
-                ,
-                {withCredentials: true}
-            );
-            if (response.data.success) {
-                setCartItems(response.data.cartData || {}); // Đảm bảo là object
-            }
-        } catch (error) {
-            console.log("Error fetching cart:", error);
-            // Không cần toast lỗi ở đây, có thể giỏ hàng trống
-        }
-    }, [token, backendUrl]);
-
-    // --- Effect chính để load dữ liệu ban đầu ---
-    useEffect(() => {
-        const initialLoad = async () => {
-            setLoading(true);
-            await fetchProducts(); // Luôn fetch products
-            if (token) {
-                 // Fetch user, cart, store info song song nếu có token
-                 await Promise.all([
-                     fetchUserData(),
-                     getUserCart(),
-                     fetchStoreData()
-                 ]);
-            } else {
-                // Nếu không có token, xóa user và store info
-                setUser(null);
-                updateStoreInfoContext(null);
-                setCartItems({});
-            }
-             setLoading(false); // Kết thúc loading sau khi tất cả hoàn thành
-        };
-        initialLoad();
-    }, [token, fetchProducts, fetchUserData, getUserCart, fetchStoreData]); // Thêm các hàm fetch vào dependencies
-
-     // Cập nhật store info và lưu vào localStorage
-     const updateStoreInfoContext = (data) => {
+    const updateStoreInfoContext = useCallback((data) => {
         setStoreInfo(data);
         if (data) {
             localStorage.setItem("storeInfo", JSON.stringify(data));
         } else {
             localStorage.removeItem("storeInfo");
         }
-     };
+    }, []);
 
+    const fetchUserData = useCallback(async () => {
+        if (!token) {
+            setUser(null);
+            updateStoreInfoContext(null);
+            return;
+        }
+        try {
+            const response = await axios.get(`${backendUrl}/api/user/getProfile`, {
+                headers: { Authorization: `Bearer ${token}` },
+                withCredentials: true,
+            });
 
-     
-    // --- HÀM FOLLOW/UNFOLLOW (ĐÃ CÓ VÀ ĐÚNG) ---
-    const followStore = async (storeId) => {
-       if (!token) {
-           toast.error("Please log in to follow a store.");
-           return { success: false };
-       }
-       if (!user?._id) { // Kiểm tra user và user._id
-           toast.error("User data not available yet.");
-           return { success: false };
-       }
-       try {
-           const response = await axios.post(
-               `${backendUrl}/api/store/followers/${storeId}`,
-               { userId: user._id },
-               {
-                headers: {
-                    Authorization: `Bearer ${token}`,
+            if (response.data.status === 200 && response.data.user) {
+                setUser(response.data.user);
+                try {
+                    const storeRes = await axios.get(`${backendUrl}/api/store/myStore`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                        withCredentials: true,
+                    });
+                    if ((storeRes.data.status === 200 || storeRes.status === 200) && storeRes.data.store) {
+                        updateStoreInfoContext(storeRes.data.store);
+                    } else {
+                        updateStoreInfoContext(null);
+                    }
+                } catch (storeError) {
+                     if (storeError.response && (storeError.response.status === 404 || storeError.response.status === 403)) {
+                         updateStoreInfoContext(null);
+                     } else if (storeError.response && storeError.response.status === 401) {
+                        setToken(""); localStorage.removeItem("token");
+                        updateStoreInfoContext(null); setUser(null); setCartItems({});
+                        toast.warn("Session expired. Please log in again.");
+                        navigate("/login");
+                     } else {
+                         console.error("Error fetching store status:", storeError);
+                         updateStoreInfoContext(null);
+                     }
                 }
-                },
-               {withCredentials: true}
-           );
-           if (response.data.success) {
-               await fetchUserData(); // Cập nhật lại thông tin user (bao gồm cả list following)
-               toast.success(response.data.message);
-               return { success: true };
-           } else {
-               toast.error(response.data.message);
-               return { success: false, message: response.data.message };
-           }
-       } catch (error) {
-           console.error("Error following store:", error);
-           toast.error(error.response?.data?.message || "Failed to follow store.");
-           return { success: false };
-       }
-   };
-
-   const unfollowStore = async (storeId) => {
-       if (!token) {
-           toast.error("Please log in to unfollow a store.");
-           return { success: false };
-       }
-        if (!user?._id) {
-           toast.error("User data not available yet.");
-           return { success: false };
-       }
-       try {
-           const response = await axios.post(
-               `${backendUrl}/api/store/unfollow/${storeId}`,
-               { userId: user._id },
-               {
-                headers: {
-                    Authorization: `Bearer ${token}`,
+            } else {
+                console.error("Fetch user profile failed:", response.data?.message || `Status ${response.status}`);
+                 if (response.status === 401 || response.data?.status === 401 || response.data?.status !== 200) {
+                    setToken(""); localStorage.removeItem("token");
+                    updateStoreInfoContext(null); setUser(null); setCartItems({});
+                    toast.warn("Session expired or invalid. Please log in again.");
+                    navigate("/login");
                 }
             }
-           );
-           if (response.data.success) {
-               await fetchUserData(); // Cập nhật lại thông tin user
-               toast.success(response.data.message);
-               return { success: true };
-           } else {
-               toast.error(response.data.message);
-               return { success: false, message: response.data.message };
-           }
-       } catch (error) {
-           console.error("Error unfollowing store:", error);
-           toast.error(error.response?.data?.message || "Failed to unfollow store.");
-           return { success: false };
-       }
-   };
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+            if (error.response && error.response.status === 401) {
+                setToken(""); localStorage.removeItem("token");
+                updateStoreInfoContext(null); setUser(null); setCartItems({});
+                toast.warn("Session expired. Please log in again.");
+                navigate("/login");
+            }
+        }
+    }, [token, backendUrl, navigate, updateStoreInfoContext]);
 
-   const isFollowingStore = async (storeId) => {
-       if (!token || !user?._id) return false;
+    const fetchProducts = useCallback(async () => {
+        try {
+            const response = await axios.get(`${backendUrl}/api/product/`); // Endpoint lấy danh sách public
 
-       try {
-           const response = await axios.post(`${backendUrl}/api/store/followers/${storeId}`,
-               { userId: user._id }, // Gửi userId trong body
-               {
-                headers: {
-                    Authorization: `Bearer ${token}`,
+            const rawProducts = Array.isArray(response.data) ? response.data : []; // API này trả về mảng trực tiếp
+
+            const cleanedProducts = rawProducts.map(product => {
+                const thumbnail = product.thumbnail || '/placeholder-image.png';
+                // API này không trả về image_details hoặc colors trực tiếp trong list
+                // Giữ lại category object nếu cần dùng ở Collection page
+                return {
+                    ...product,
+                    id: product.id ?? product._id,
+                    images: [thumbnail], // Chỉ có thumbnail trong mảng images từ API này
+                };
+            });
+            setProducts(cleanedProducts);
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            toast.error("Failed to load products.");
+            setProducts([]);
+        }
+    }, [backendUrl]);
+
+    const getUserCart = useCallback(async () => {
+        if (!token) { setCartItems({}); return; }
+        try {
+            const response = await axios.get(`${backendUrl}/api/cart/`, {
+                headers: { Authorization: `Bearer ${token}` },
+                withCredentials: true
+            });
+            if (response.data?.status === 200 && typeof response.data?.cart === 'object') {
+                const backendCart = response.data.cart;
+                const newCartItems = {};
+                for (const storeId in backendCart) {
+                     const itemsArray = backendCart[storeId];
+                     if (Array.isArray(itemsArray)) {
+                         itemsArray.forEach(item => {
+                             if (item.product_id && item.quantity) {
+                                 newCartItems[item.product_id] = item.quantity;
+                             }
+                         });
+                     }
                 }
-                },
-               {withCredentials: true}
-           );
-           return response.data.isFollowing;
-       } catch (error) {
-           console.error("Error checking follow status:", error);
-           // Không nên toast lỗi ở đây vì nó có thể chạy ngầm
-           return false;
-       }
-   };
-   // --- KẾT THÚC HÀM FOLLOW/UNFOLLOW ---
+                setCartItems(newCartItems);
+            } else {
+                setCartItems({});
+            }
+        } catch (error) {
+            console.error("Error fetching cart:", error);
+            setCartItems({});
+        }
+    }, [token, backendUrl]);
+
+    useEffect(() => {
+        const initialLoad = async () => {
+            setLoading(true);
+            await fetchProducts();
+            if (token) {
+                await Promise.all([
+                    fetchUserData(),
+                    getUserCart(),
+                ]);
+            } else {
+                setUser(null);
+                updateStoreInfoContext(null);
+                setCartItems({});
+            }
+            setLoading(false);
+        };
+        initialLoad();
+    }, [token, fetchProducts, fetchUserData, getUserCart]);
 
 
-    // --- AUTO LOGOUT (Giữ nguyên) ---
     useEffect(() => {
         let timer;
         const resetTimer = () => {
@@ -314,172 +169,112 @@ const ShopContextProvider = (props) => {
             timer = setTimeout(() => {
                 setToken("");
                 localStorage.removeItem("token");
-                updateStoreInfoContext(null);
+                localStorage.removeItem("storeInfo");
                 setUser(null);
+                setStoreInfo(null);
                 setCartItems({});
                 toast.warn("Your session has expired. Please log in again.");
                 navigate("/login");
-            }, 30 * 60 * 1000); // 30 phút
+            }, 30 * 60 * 1000);
         };
-
-         if (token) { // Chỉ chạy timer khi có token
-             window.addEventListener("mousemove", resetTimer);
-             window.addEventListener("keypress", resetTimer);
-             window.addEventListener("click", resetTimer); // Thêm click
-             resetTimer(); // Khởi tạo timer
-         } else {
-             if (timer) clearTimeout(timer); // Xóa timer nếu không có token
-         }
-
+        if (token) {
+            window.addEventListener("mousemove", resetTimer);
+            window.addEventListener("keypress", resetTimer);
+            window.addEventListener("click", resetTimer);
+            resetTimer();
+        } else {
+            if (timer) clearTimeout(timer);
+        }
         return () => {
             window.removeEventListener("mousemove", resetTimer);
             window.removeEventListener("keypress", resetTimer);
-             window.removeEventListener("click", resetTimer);
+            window.removeEventListener("click", resetTimer);
             if (timer) clearTimeout(timer);
         };
-    }, [token, navigate]); // Chạy lại khi token hoặc navigate thay đổi
+    }, [token, navigate, updateStoreInfoContext]);
 
-
-    // --- CÁC HÀM GIỎ HÀNG (Giữ nguyên logic, đã sửa ở lần trước) ---
-    const addToCart = async (itemId, color) => {
-       if (!color) {
-           toast.error("Please select the color first");
-           return;
-       }
-       setCartItems((prev) => {
-           const newCart = structuredClone(prev);
-           if (!newCart[itemId]) {
-               newCart[itemId] = {};
-           }
-            newCart[itemId][color] = (newCart[itemId][color] || 0) + 1;
-           return newCart;
-       });
-
-       if (token) {
-           try {
-               await axios.post(
-                   backendUrl + "/api/cart/add",
-                   { itemId, color },
-                   {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                    },
-                   {withCredentials: true}
-               );
-           } catch (error) {
-               console.log("Error adding to backend cart:", error);
-               toast.error(error.response?.data?.message || "Error adding to cart");
-               await getUserCart(); // Fetch lại cart để đồng bộ nếu lỗi
-           }
-       }
-   };
-
-    const updateQuantity = async (itemId, color, quantity) => {
-       if (quantity < 0) return;
-
-       setCartItems((prev) => {
-           const newCart = structuredClone(prev);
-           if (newCart[itemId]?.[color] !== undefined) {
-               if (quantity === 0) {
-                   delete newCart[itemId][color];
-                   if (Object.keys(newCart[itemId]).length === 0) {
-                       delete newCart[itemId];
-                   }
-               } else {
-                   newCart[itemId][color] = quantity;
-               }
-           }
-           return newCart;
-       });
-
-       if (token) {
-           try {
-               await axios.post(
-                   backendUrl + "/api/cart/update",
-                   { itemId, color, quantity },
-                   {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                    },
-                   {withCredentials: true},
-               );
-           } catch (error) {
-               console.log("Error updating backend cart:", error);
-               toast.error(error.response?.data?.message || "Error updating cart");
-               await getUserCart(); // Fetch lại cart
-           }
-       }
-   };
-
-     const removeFromCart = (itemId, color) => {
-       updateQuantity(itemId, color, 0);
-   };
-
-    const getCartCount = () => {
-        let totalCount = 0;
-        for (const itemId in cartItems) {
-            for (const color in cartItems[itemId]) {
-                totalCount += cartItems[itemId][color];
-            }
+    const addToCart = async (productId) => {
+        if (!token) { toast.error("Please log in to add items."); return; }
+        const currentQuantity = cartItems[productId] || 0;
+        const newQuantity = currentQuantity + 1;
+        setCartItems(prev => ({ ...prev, [productId]: newQuantity }));
+        try {
+            await axios.post(`${backendUrl}/api/cart/add/${productId}`, { quantity: 1 }, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
+            toast.success("Item added to cart!");
+        } catch (error) {
+            console.error("Error adding to cart:", error);
+            toast.error(error.response?.data?.message || "Error adding item to cart.");
+            setCartItems(prev => { const current = prev[productId]; if (current - 1 <= 0) { const { [productId]: _, ...rest } = prev; return rest; } return { ...prev, [productId]: current - 1}; });
         }
-        return totalCount;
     };
 
-    const getCartAmount = () => {
-        let totalAmount = 0;
-        for (const itemId in cartItems) {
-            const itemInfo = products.find((product) => product._id === itemId);
-            if (itemInfo) {
-                for (const color in cartItems[itemId]) {
-                    totalAmount += itemInfo.price * cartItems[itemId][color];
-                }
-            } else {
-                console.warn(`Product with ID ${itemId} not found in products list for cart calculation.`);
-            }
+    const updateQuantity = async (productId, quantity) => {
+        if (quantity < 0 || !token) return;
+        const currentQuantity = cartItems[productId] || 0;
+        const optimisticCart = { ...cartItems };
+        if (quantity === 0) { delete optimisticCart[productId]; } else { optimisticCart[productId] = quantity; }
+        setCartItems(optimisticCart);
+        const backendMethod = quantity > 0 ? 'put' : 'delete';
+        const backendUrlUpdate = quantity > 0 ? `${backendUrl}/api/cart/update/${productId}` : `${backendUrl}/api/cart/delete/${productId}`;
+        const payload = quantity > 0 ? { quantity } : {};
+        try {
+            await axios({ method: backendMethod, url: backendUrlUpdate, data: payload, headers: { Authorization: `Bearer ${token}` }, withCredentials: true, });
+        } catch (error) {
+            console.error("Error updating cart quantity:", error);
+            toast.error(error.response?.data?.message || "Error updating cart item.");
+            setCartItems(prev => ({...prev, [productId]: currentQuantity}));
+            await getUserCart();
         }
-        return totalAmount;
     };
-    // --- KẾT THÚC HÀM GIỎ HÀNG ---
+
+    const removeFromCart = async (productId) => {
+        const currentQuantity = cartItems[productId] || 0;
+        if (currentQuantity === 0) return;
+        setCartItems(prev => { const newCart = { ...prev }; delete newCart[productId]; return newCart; });
+        if (token) {
+            try { await axios.delete(`${backendUrl}/api/cart/delete/${productId}`, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }); }
+            catch (error) { console.error("Error removing from cart:", error); toast.error(error.response?.data?.message || "Error removing item."); setCartItems(prev => ({...prev, [productId]: currentQuantity})); }
+        }
+    };
+
+    const getCartCount = () => { let totalCount = 0; for (const itemId in cartItems) { if (cartItems[itemId] > 0) { totalCount += cartItems[itemId]; } } return totalCount; };
+    const getCartAmount = () => { let totalAmount = 0; for (const itemId in cartItems) { if (cartItems[itemId] > 0) { const itemInfo = products.find((product) => String(product.id) === itemId); if (itemInfo) { totalAmount += itemInfo.price * cartItems[itemId]; } } } return totalAmount; };
+
+    const followStore = useCallback(async (storeId) => {
+        if (!token) { toast.error("Please log in."); return { success: false }; }
+        try {
+            const response = await axios.post(`${backendUrl}/api/followers/create`, { store_id: storeId }, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
+            if (response.data?.success || response.status === 200 || response.status === 201) { toast.success(response.data?.message || "Followed store successfully!"); return { success: true }; }
+            else { toast.error(response.data?.message || "Failed to follow store."); return { success: false, message: response.data?.message }; }
+        } catch (error) { console.error("Error following store:", error); toast.error(error.response?.data?.message || "Failed to follow store."); return { success: false }; }
+    }, [token, backendUrl]);
+
+    const unfollowStore = useCallback(async (storeId) => {
+        if (!token) { toast.error("Please log in."); return { success: false }; }
+        try {
+            const response = await axios.delete(`${backendUrl}/api/followers/delete/${storeId}`, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
+             if (response.data?.success || response.status === 200) { toast.success(response.data?.message || "Unfollowed store successfully!"); return { success: true }; }
+             else { toast.error(response.data?.message || "Failed to unfollow store."); return { success: false, message: response.data?.message }; }
+        } catch (error) { console.error("Error unfollowing store:", error); toast.error(error.response?.data?.message || "Failed to unfollow store."); return { success: false }; }
+    }, [token, backendUrl]);
+
+    const isFollowingStore = useCallback(async (storeId) => {
+        if (!token) return false;
+        try {
+            const response = await axios.get(`${backendUrl}/api/followers/get`, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
+             if (response.data?.success && Array.isArray(response.data?.following)) { return response.data.following.some(follow => String(follow.store_id) === String(storeId)); }
+             return false;
+        } catch (error) { console.error("Error checking follow status:", error); return false; }
+    }, [token, backendUrl]);
 
 
-    // --- OBJECT VALUE CHO CONTEXT PROVIDER ---
     const value = {
-        navigate,
-        products,
-        search,
-        setSearch,
-        currency,
-        delivery_charges,
-        cartItems,
-        setCartItems, // Cần thiết để cập nhật từ bên ngoài nếu có
-        addToCart,
-        removeFromCart, // Thêm hàm xóa
-        getCartCount,
-        updateQuantity,
-        getCartAmount,
-        token,
-        setToken,
-        backendUrl,
-        storeInfo,
-        updateStoreInfoContext, // Cung cấp hàm cập nhật
-        // --> THÊM CÁC HÀM FOLLOW VÀO VALUE <--
-        followStore,
-        unfollowStore,
-        isFollowingStore,
-        // --> KẾT THÚC THÊM <--
-        user,
-        setUser, // Cung cấp setUser
-        loading,
-        fetchUserData, // Cung cấp nếu cần gọi lại từ bên ngoài
-        getUserCart,   // Cung cấp nếu cần gọi lại từ bên ngoài
-        fetchStoreData // Cung cấp nếu cần gọi lại từ bên ngoài
+        navigate, products, search, setSearch, currency, delivery_charges, cartItems, setCartItems, addToCart,
+        removeFromCart, getCartCount, updateQuantity, getCartAmount, token, setToken, backendUrl, storeInfo,
+        updateStoreInfoContext, followStore, unfollowStore, isFollowingStore, user, setUser, loading,
+        fetchUserData, getUserCart
     };
-    // --- KẾT THÚC OBJECT VALUE ---
 
-    // Log giá trị context để kiểm tra
-    // console.log('CONTEXT PROVIDER VALUE:', value);
 
     return (
         <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>
